@@ -13,7 +13,7 @@ import org.example.board_game.infrastructure.constants.EntityProperties;
 @Table(name = "product_category")
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductDetailCategory extends PrimaryEntity {
+public class ProductCategory extends PrimaryEntity {
 
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
