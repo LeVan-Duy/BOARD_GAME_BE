@@ -23,7 +23,6 @@ public class ProductDetailCategory extends PrimaryEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     Product product;
 
-
     @Column(name = "description", length = EntityProperties.LENGTH_DESCRIPTION)
     String description;
 }

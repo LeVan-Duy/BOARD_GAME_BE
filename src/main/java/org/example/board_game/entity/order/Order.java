@@ -14,6 +14,7 @@ import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.enums.OrderType;
 import org.example.board_game.utils.RandomStringUtil;
+
 import java.util.List;
 
 @Getter
@@ -45,20 +46,20 @@ public class Order extends PrimaryEntity {
     @Column(name = "full_name", length = EntityProperties.LENGTH_NAME)
     String fullName;
 
-    @Column(name = "email", length = EntityProperties.LENGTH_EMAIL)
+    @Column(name = "email", length = EntityProperties.LENGTH_EMAIL, unique = true)
     String email;
 
     @Column(name = "origin_money")
-    float originMoney;
+    Float originMoney;
 
     @Column(name = "reducel_money")
-    float reduceMoney;
+    Float reduceMoney;
 
     @Column(name = "total_money")
-    float totalMoney;
+    Float totalMoney;
 
     @Column(name = "shipping_money")
-    float shippingMoney;
+    Float shippingMoney;
 
     @Column(name = "confirmation_date")
     Long confirmationDate;
@@ -73,22 +74,22 @@ public class Order extends PrimaryEntity {
     Long receivedDate;
 
     @Column(name = "type")
-    private OrderType type;
+    OrderType type;
 
     @Column(name = "note", length = EntityProperties.LENGTH_DESCRIPTION)
-    private String note;
+    String note;
 
     @Column(name = "status")
-    private OrderStatus status;
+    OrderStatus status;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<OrderDetail> orderDetails;
+    List<OrderDetail> orderDetails;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<OrderHistory> orderHistories;
+    List<OrderHistory> orderHistories;
 
     @Column(name = "code", updatable = false, length = EntityProperties.LENGTH_CODE, unique = true)
-    private String code;
+    String code;
 
     @PrePersist
     private void generateCode() {

@@ -42,6 +42,7 @@ public class Product extends PrimaryEntity {
     @Column(name = "min_age")
     Integer minAge;
 
+    // độ khó
     @Column(name = "weight")
     Double weight;
 
@@ -53,9 +54,6 @@ public class Product extends PrimaryEntity {
 
     @Column(name = "language")
     String language;
-
-    @Column(name = "origin")
-    String origin;
 
     @Column(columnDefinition = "TEXT")
     String description;

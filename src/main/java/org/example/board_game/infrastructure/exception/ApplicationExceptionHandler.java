@@ -6,32 +6,26 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebInputException;
-
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handlerInvalidArgument(MethodArgumentNotValidException ex) {
-        Map<String, String> errorMap = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errorMap.put(error.getField(), error.getDefaultMessage());
-        });
-        return errorMap;
-    }
 
     @ExceptionHandler(value = {WebExchangeBindException.class})
     protected ResponseEntity<Response> handleWebExchangeBindException(WebExchangeBindException ex) {
         Response data = Response.fail(ex.getAllErrors().stream().findFirst().get().getDefaultMessage(), HttpStatus.BAD_REQUEST.value());
         return ResponseEntity.ok().body(data);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response> handleValidationException(MethodArgumentNotValidException ex) {
+        String error = ex.getBindingResult().getFieldErrors().getFirst().getDefaultMessage();
+        Response response = Response.fail(error, HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class})

@@ -22,28 +22,27 @@ public abstract class BaseController<T, K, R> {
     }
 
     @GetMapping("/get-all")
-    public ResponseEntity<Response<PageableObject<T>>> findAll(R request) {
-        Response<PageableObject<T>> response = service.findAll(request);
-        return ResponseEntity.ok(response);
+    public Response<PageableObject<T>> findAll(R request) {
+        return service.findAll(request);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Response<Object>> create(@RequestBody @Valid R request) {
-        return ResponseEntity.ok(service.create(request));
+    public Response<Object> create(@RequestBody @Valid R request) {
+        return service.create(request);
     }
 
     @PostMapping("/update/{id}")
-    public ResponseEntity<Response<Object>> update(@PathVariable K id, @RequestBody @Valid R request) {
-        return ResponseEntity.ok(service.update(request,id));
+    public Response<Object> update(@PathVariable K id, @RequestBody @Valid R request) {
+        return service.update(request, id);
     }
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<Response<T>> findById(@PathVariable K id) {
-        return ResponseEntity.ok(service.findById(id));
+    @GetMapping("/detail/{id}")
+    public Response<T> findById(@PathVariable K id) {
+        return service.findById(id);
     }
 
     @PostMapping("/delete/{id}")
-    public ResponseEntity<Response<Object>> delete(@PathVariable K id) {
-        return ResponseEntity.ok(service.delete(id));
+    public Response<Object> delete(@PathVariable K id) {
+        return service.delete(id);
     }
 }

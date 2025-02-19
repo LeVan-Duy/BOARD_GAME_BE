@@ -1,4 +1,4 @@
-package org.example.board_game.core.admin.domain.dto.response.product;
+package org.example.board_game.core.admin.domain.dto.response.order;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,5 +9,5 @@ import org.example.board_game.core.common.base.BaseResponse;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AdminCategoryResponse extends BaseResponse {
+public class AdminOrderResponse {
 }
