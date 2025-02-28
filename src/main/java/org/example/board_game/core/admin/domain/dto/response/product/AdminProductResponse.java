@@ -16,9 +16,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminProductResponse extends BaseResponse {
 
-    BaseResponse publisher;
-
     List<BaseResponse> categories;
+
+    List<ImageResponse> images;
+
+    BaseResponse publisher;
 
     BaseResponse author;
 

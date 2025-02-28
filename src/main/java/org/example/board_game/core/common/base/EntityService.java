@@ -3,13 +3,9 @@ package org.example.board_game.core.common.base;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.board_game.entity.product.Author;
-import org.example.board_game.entity.product.Category;
-import org.example.board_game.entity.product.Publisher;
+import org.example.board_game.entity.product.*;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
-import org.example.board_game.repository.product.AuthorRepository;
-import org.example.board_game.repository.product.CategoryRepository;
-import org.example.board_game.repository.product.PublisherRepository;
+import org.example.board_game.repository.product.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +16,8 @@ public class EntityService {
     CategoryRepository categoryRepository;
     AuthorRepository authorRepository;
     PublisherRepository publisherRepository;
+    ProductRepository productRepository;
+    ProductMediaRepository productMediaRepository;
 
     public Category getCategory(String id) {
         return categoryRepository
@@ -37,6 +35,28 @@ public class EntityService {
         return publisherRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Publisher not found."));
+    }
+
+    public Product getProduct(String id) {
+        return productRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found."));
+    }
+
+    public ProductMedia getMediaByIdAndProductId(String id, String productId) {
+        return productMediaRepository
+                .findByIdAndProduct_Id(id, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Image for Product not found."));
+    }
+
+
+    public void resetMainImage(String productId) {
+        productMediaRepository
+                .getProductMediaByProduct_IdAndMainImgTrue(productId)
+                .ifPresent(currentMainMedia -> {
+                    currentMainMedia.setMainImg(false);
+                    productMediaRepository.save(currentMainMedia);
+                });
     }
 
 }

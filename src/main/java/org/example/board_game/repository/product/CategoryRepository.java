@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
+
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, String> {
 
@@ -18,6 +21,8 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
            AND x.deleted = FALSE
            """)
     Page<Category> findAllCategory(@Param("request") AdminCategoryRequest request, Pageable pageable);
+
+    List<Category> getAllByIdInAndDeletedFalse(List<String> ids);
 
     boolean existsByNameAndDeletedFalseAndIdNotLike(String name, String id);
     boolean existsByNameAndDeletedFalse(String name);

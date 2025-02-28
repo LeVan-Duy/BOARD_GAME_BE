@@ -20,5 +20,8 @@ public class ProductMedia extends PrimaryEntity {
 
     @Column(name = "url")
     String url;
+
+    @Column(name = "main_image")
+    boolean mainImg;
 }
 
