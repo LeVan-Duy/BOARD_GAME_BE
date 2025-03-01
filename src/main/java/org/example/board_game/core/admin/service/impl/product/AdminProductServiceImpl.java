@@ -6,9 +6,11 @@ import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.admin.domain.dto.request.product.AdminAddImageRequest;
 import org.example.board_game.core.admin.domain.dto.request.product.AdminProductRequest;
 import org.example.board_game.core.admin.domain.dto.response.product.AdminProductResponse;
+import org.example.board_game.core.admin.domain.dto.response.product.ImageResponse;
 import org.example.board_game.core.admin.domain.mapper.product.AdminProductMapper;
 import org.example.board_game.core.admin.service.product.AdminProductService;
 import org.example.board_game.core.common.PageableObject;
+import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.infrastructure.constants.EntityProperties;
@@ -23,10 +25,12 @@ import org.example.board_game.utils.CollectionUtils;
 import org.example.board_game.utils.PaginationUtil;
 import org.example.board_game.utils.Response;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -40,14 +44,36 @@ public class AdminProductServiceImpl implements AdminProductService {
     EntityService entityService;
     AdminProductMapper productMapper = AdminProductMapper.INSTANCE;
 
-    //todo function response
     @Override
     public Response<PageableObject<AdminProductResponse>> findAll(AdminProductRequest request) {
+
         Pageable pageable = PaginationUtil.pageable(request);
         Page<Product> page = productRepository.findAllProduct(request, request.getStatus(), pageable);
-        Page<AdminProductResponse> resPage = page.map(productMapper::toResponse);
-        PageableObject<AdminProductResponse> pageableObject = new PageableObject<>(resPage);
-        return Response.of(pageableObject).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
+
+        List<AdminProductResponse> responseList = page.getContent().stream().map(product -> {
+            AdminProductResponse response = productMapper.toResponse(product);
+
+            response.setCategories(product.getProductCategoryList().stream()
+                    .map(pc -> baseResponse(pc.getCategory().getId(),pc.getCategory().getName(),pc.getCategory().getDescription()))
+                    .collect(Collectors.toList()));
+
+            response.setImages(product.getProductMediaList().stream()
+                    .map(image -> new ImageResponse(image.getId(), image.getUrl(), image.isMainImg()))
+                    .collect(Collectors.toList()));
+
+            response.setPublisher(product.getPublisher() != null
+                    ? baseResponse(product.getPublisher().getId(), product.getPublisher().getName(), product.getPublisher().getDescription())
+                    : null);
+
+            response.setAuthor(product.getAuthor() != null
+                    ? baseResponse(product.getAuthor().getId(), product.getAuthor().getName(), product.getAuthor().getDescription())
+                    : null);
+
+            return response;
+        }).toList();
+        return Response
+                .of(new PageableObject<>(new PageImpl<>(responseList, pageable, page.getTotalElements())))
+                .success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
 
     @Override
@@ -60,15 +86,14 @@ public class AdminProductServiceImpl implements AdminProductService {
             throw new ResourceNotFoundException("Vui lòng upload image cho sản phẩm này.");
         }
         if (images.stream().filter(AdminAddImageRequest::isMainImage).count() != 1) {
-            throw new IllegalArgumentException("Sản phẩm cần có một ảnh đại diện.");
+            throw new ResourceNotFoundException("Sản phẩm cần có một ảnh đại diện.");
         }
         if (CollectionUtils.isListEmpty(categoryIds)) {
             throw new ResourceNotFoundException("Vui lòng chọn ít nhất một thể loại cho sản phẩm này.");
         }
         boolean isNameExist = productRepository.existsByNameAndDeletedFalse(request.getName());
-        if (isNameExist) {
-            throw new ApiException("Tên sản phẩm đã tồn tại.");
-        }
+        if (isNameExist)  throw new ApiException("Tên sản phẩm đã tồn tại.");
+
         Publisher publisher = entityService.getPublisher(request.getPublisherId());
         Author author = entityService.getAuthor(request.getAuthorId());
         Product product = productMapper.toEntity(request);
@@ -98,11 +123,11 @@ public class AdminProductServiceImpl implements AdminProductService {
         removeProductCategories(id);
         Publisher publisher = entityService.getPublisher(request.getPublisherId());
         Author author = entityService.getAuthor(request.getAuthorId());
-        productMapper.updateProduct(request,product);
+        productMapper.updateProduct(request, product);
         product.setAuthor(author);
         product.setPublisher(publisher);
         productRepository.save(product);
-        addCategoriesToProduct(categoryIds,product);
+        addCategoriesToProduct(categoryIds, product);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
@@ -154,5 +179,13 @@ public class AdminProductServiceImpl implements AdminProductService {
             return;
         }
         productCategoryRepository.deleteAll(productCategories);
+    }
+
+    private BaseResponse baseResponse(String id, String name, String description) {
+        BaseResponse response = new BaseResponse();
+        response.setId(id);
+        response.setName(name);
+        response.setDescription(description);
+        return response;
     }
 }

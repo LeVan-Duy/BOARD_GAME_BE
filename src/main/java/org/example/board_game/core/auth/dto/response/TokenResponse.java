@@ -1,20 +1,18 @@
-package org.example.board_game.core.common.base;
+package org.example.board_game.core.auth.dto.response;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BaseResponse {
+public class TokenResponse {
 
-    String id;
+    String accessToken;
 
-    String name;
-
-    String description;
-
+    String refreshToken;
 }

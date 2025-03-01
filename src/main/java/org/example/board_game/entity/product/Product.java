@@ -9,6 +9,8 @@ import org.example.board_game.entity.base.PrimaryEntity;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.ProductStatus;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Table(name = "product")
@@ -60,6 +62,12 @@ public class Product extends PrimaryEntity {
 
     @Column(name = "status")
     ProductStatus status;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductMedia> productMediaList;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductCategory> productCategoryList;
 
 }
 

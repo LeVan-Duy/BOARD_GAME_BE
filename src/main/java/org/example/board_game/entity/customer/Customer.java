@@ -1,8 +1,6 @@
 package org.example.board_game.entity.customer;
 
-
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Order;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,8 +10,12 @@ import org.example.board_game.entity.cart.Cart;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
 import org.example.board_game.infrastructure.enums.Gender;
-import org.hibernate.annotations.Nationalized;
+import org.example.board_game.infrastructure.enums.Role;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -22,8 +24,7 @@ import java.util.List;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 
-//public class Customer extends PrimaryEntity implements UserDetails {
-public class Customer extends PrimaryEntity {
+public class Customer extends PrimaryEntity implements UserDetails {
 
     @Column(name = "full_name", length = EntityProperties.LENGTH_NAME)
     String fullName;
@@ -55,47 +56,47 @@ public class Customer extends PrimaryEntity {
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
     Cart cart;
 
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority(EntityProperties.ROLE_CUSTOMER));
-//    }
-//
-//    @Override
-//    public String getUsername() {
-//        return email;
-//    }
-//
-//    @Override
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//
-//    @Override
-//    public boolean isAccountNonExpired() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isAccountNonLocked() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isCredentialsNonExpired() {
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean isEnabled() {
-//        return true;
-//    }
-//
-//    @PrePersist
-//    private void createCart() {
-//        Cart cart = new Cart();
-//        cart.setCustomer(this);
-//        this.cart = cart;
-//    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(Role.CUSTOMER.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @PrePersist
+    private void createCart() {
+        Cart cart = new Cart();
+        cart.setCustomer(this);
+        this.cart = cart;
+    }
 }
 

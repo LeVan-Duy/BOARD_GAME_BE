@@ -10,4 +10,5 @@ import org.example.board_game.core.common.base.BaseResponse;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminAuthorResponse extends BaseResponse {
+
 }

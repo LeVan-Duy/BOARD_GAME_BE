@@ -1,13 +1,13 @@
 package org.example.board_game.core.admin.domain.dto.response.product;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class ImageResponse {
 
     String id;
@@ -15,4 +15,5 @@ public class ImageResponse {
     String url;
 
     boolean newImage;
+
 }
