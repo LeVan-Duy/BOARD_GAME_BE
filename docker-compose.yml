@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    image: 'board-game-spring-boot-with-postgresql:latest'
+    build: ./
+    ports:
+      - "8080:8080"
+    container_name: board-game-be
+    environment:
+      - SPRING_DATASOURCE_URl=jdbc:postgresql://dpg-cv37gcl2ng1s73frdhbg-a:5432/board_game
+      - SPRING_DATASOURCE_USERNAME=board_game_user
+      - SPRING_DATASOURCE_PASSWORD=K02gsvB8sl87uQRVfU7Vv951fdNqy4kg
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
