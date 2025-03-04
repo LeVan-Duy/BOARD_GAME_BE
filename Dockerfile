@@ -1,4 +1,4 @@
-FROM maven:3.8.1-openjdk-21 AS build
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 COPY pom.xml /app/
 COPY src /app/src/
 WORKDIR /app
