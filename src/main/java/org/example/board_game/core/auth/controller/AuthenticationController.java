@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.auth.dto.request.ChangePasswordRequest;
 import org.example.board_game.core.auth.dto.request.LoginRequest;
 import org.example.board_game.core.auth.dto.request.RefreshTokenRequest;
 import org.example.board_game.core.auth.dto.request.RegisterCustomerRequest;
@@ -45,5 +46,10 @@ public class AuthenticationController {
     @PostMapping("/logout")
     public Response<Object> logout() {
         return authenticationService.logout();
+    }
+
+    @PostMapping("/change-password")
+    public Response<Object> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        return authenticationService.changePassword(request);
     }
 }

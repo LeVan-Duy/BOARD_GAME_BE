@@ -3,9 +3,15 @@ package org.example.board_game.core.common.base;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.entity.customer.Customer;
+import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
+import org.example.board_game.repository.customer.CustomerRepository;
+import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.repository.product.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +24,8 @@ public class EntityService {
     PublisherRepository publisherRepository;
     ProductRepository productRepository;
     ProductMediaRepository productMediaRepository;
+    CustomerRepository customerRepository;
+    EmployeeRepository employeeRepository;
 
     public Category getCategory(String id) {
         return categoryRepository
@@ -59,4 +67,15 @@ public class EntityService {
                 });
     }
 
+    public Customer getCurrentCustomer() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return customerRepository.findByEmailAndDeletedFalse(email).orElse(null);
+    }
+
+    public Employee getCurrentEmployee() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return employeeRepository.findByEmailAndDeletedFalse(email).orElse(null);
+    }
 }

@@ -8,14 +8,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.auth.service.JwtService;
-import org.example.board_game.entity.auth.RefreshToken;
-import org.example.board_game.repository.auth.BlacklistTokenRepository;
-import org.example.board_game.repository.auth.RefreshTokenRepository;
+import org.example.board_game.core.common.base.BaseRedisService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.SecretKey;
-import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 import java.util.function.Function;
@@ -34,8 +32,7 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.refresh-expiration}")
     Long REFRESH_TOKEN_EXPIRATION;
 
-    final RefreshTokenRepository refreshTokenRepository;
-    final BlacklistTokenRepository blacklistTokenRepository;
+    final BaseRedisService redisService;
 
     @Override
     public String generateToken(UserDetails userDetails) {
@@ -61,26 +58,41 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String createRefreshToken(UserDetails userDetails) {
+
         String token = UUID.randomUUID().toString();
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(token)
-                .username(userDetails.getUsername())
-                .expiryDate(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION)
-                .build();
-        deleteByUsername(userDetails.getUsername());
-        refreshTokenRepository.save(refreshToken);
+        String key = "refresh_token:" + userDetails.getUsername();
+
+        redisService.delete(key);
+        redisService.set(key, token);
+        redisService.setTimeToLive(key, REFRESH_TOKEN_EXPIRATION / 1000);
+
+        redisService.set("refresh_mapping:" + token, userDetails.getUsername());
+        redisService.setTimeToLive("refresh_mapping:" + token, REFRESH_TOKEN_EXPIRATION / 1000);
+
         return token;
     }
 
     @Override
     public boolean validRefreshToken(String token) {
-
-        if (blacklistTokenRepository.existsByToken(token)) {
+        if (redisService.exists("blacklist:" + token)) {
             return false;
         }
-        return refreshTokenRepository.findByToken(token)
-                .filter(rt -> Instant.ofEpochMilli(rt.getExpiryDate()).isAfter(Instant.now()))
-                .isPresent();
+        String username = (String) redisService.get("refresh_mapping:" + token);
+        if (username == null) {
+            return false;
+        }
+        String storedToken = redisService.get("refresh_token:" + username).toString();
+        return token.equals(storedToken);
+    }
+
+    @Override
+    public void invalidateRefreshToken(String token, String username) {
+        redisService.set("blacklist:" + token, "true");
+        redisService.setTimeToLive("blacklist:" + token, REFRESH_TOKEN_EXPIRATION / 1000);
+        if (username != null) {
+            redisService.delete("refresh_mapping:" + token);
+            redisService.delete("refresh_token:" + username);
+        }
     }
 
     private SecretKey getSignKey() {
@@ -108,9 +120,5 @@ public class JwtServiceImpl implements JwtService {
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
-    }
-
-    public void deleteByUsername(String username) {
-        refreshTokenRepository.deleteByUsername(username);
     }
 }

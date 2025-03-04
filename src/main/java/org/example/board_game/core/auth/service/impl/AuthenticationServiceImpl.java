@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.admin.domain.mapper.customer.AdminCustomerMapper;
+import org.example.board_game.core.auth.dto.request.ChangePasswordRequest;
 import org.example.board_game.core.auth.dto.request.LoginRequest;
 import org.example.board_game.core.auth.dto.request.RefreshTokenRequest;
 import org.example.board_game.core.auth.dto.request.RegisterCustomerRequest;
@@ -11,16 +12,14 @@ import org.example.board_game.core.auth.dto.response.TokenResponse;
 import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.JwtService;
 import org.example.board_game.core.auth.service.UserDetailService;
-import org.example.board_game.entity.auth.BlacklistToken;
-import org.example.board_game.entity.auth.RefreshToken;
+import org.example.board_game.core.common.base.BaseRedisService;
+import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
-import org.example.board_game.repository.auth.BlacklistTokenRepository;
-import org.example.board_game.repository.auth.RefreshTokenRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.utils.Response;
@@ -33,8 +32,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -42,13 +39,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     CustomerRepository customerRepository;
     EmployeeRepository employeeRepository;
+    EntityService entityService;
     AuthenticationManager authenticationManager;
     PasswordEncoder passwordEncoder;
     UserDetailService userDetailService;
     JwtService jwtService;
     AdminCustomerMapper customerMapper = AdminCustomerMapper.INSTANCE;
-    RefreshTokenRepository refreshTokenRepository;
-    BlacklistTokenRepository blacklistTokenRepository;
+    BaseRedisService redisService;
 
     @Override
     public Response<TokenResponse> registerCustomer(RegisterCustomerRequest request) {
@@ -82,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String email = request.getEmail();
         String accessToken;
         String refreshToken;
-
+        String messageError = "Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại.";
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -91,23 +88,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     )
             );
         } catch (AuthenticationException exception) {
-            throw new ApiException("Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại");
+            throw new ApiException(messageError);
         }
         Customer customer = customerRepository.findByEmailAndDeletedFalse(email).orElse(null);
         if (customer == null) {
             Employee employee = employeeRepository.findByEmailAndDeletedFalse(email).orElse(null);
             if (employee == null) {
-                throw new ApiException("Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại");
+                throw new ApiException(messageError);
             }
             if (!passwordEncoder.matches(request.getPassword(), employee.getPassword())) {
-                throw new ApiException("Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại");
+                throw new ApiException(messageError);
             }
             accessToken = jwtService.generateToken(employee);
             refreshToken = jwtService.createRefreshToken(employee);
 
         } else {
             if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-                throw new ApiException("Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại");
+                throw new ApiException(messageError);
             }
             accessToken = jwtService.generateToken(customer);
             refreshToken = jwtService.createRefreshToken(customer);
@@ -123,14 +120,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public Response<TokenResponse> refreshToken(RefreshTokenRequest request) {
 
         String refreshToken = request.getRefreshToken();
-        if (!jwtService.validRefreshToken(refreshToken)) {
+        String username = (String) redisService.get("refresh_mapping:" + refreshToken);
+        if (username == null || !jwtService.validRefreshToken(refreshToken)) {
             throw new ApiException("Refresh token không hợp lệ hoặc đã hết hạn.");
         }
-        RefreshToken storedToken = refreshTokenRepository
-                .findByToken(refreshToken)
-                .orElseThrow(() -> new ResourceNotFoundException("Refresh token không tồn tại."));
-
-        UserDetails userDetails = userDetailService.loadUserByUsername(storedToken.getUsername());
+        UserDetails userDetails = userDetailService.loadUserByUsername(username);
         String newAccessToken = jwtService.generateToken(userDetails);
         String newRefreshToken = jwtService.createRefreshToken(userDetails);
 
@@ -144,14 +138,46 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public Response<Object> logout() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUsername(username);
-        if (refreshToken.isPresent()) {
-            BlacklistToken blacklistToken = new BlacklistToken();
-            blacklistToken.setToken(refreshToken.get().getToken());
-            refreshTokenRepository.delete(refreshToken.get());
-            blacklistTokenRepository.save(blacklistToken);
+        String refreshToken = (String) redisService.get("refresh_token:" + username);
+        if (refreshToken != null) {
+            jwtService.invalidateRefreshToken(refreshToken, username);
             return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
         }
         return Response.ok().success("Người dùng không hợp lệ.", HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Override
+    public Response<Object> changePassword(ChangePasswordRequest request) {
+        String username;
+        Customer customer = entityService.getCurrentCustomer();
+        if (customer != null) {
+            passwordCompare(request, customer.getPassword());
+            customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            customerRepository.save(customer);
+            username = customer.getUsername();
+        } else {
+            Employee employee = entityService.getCurrentEmployee();
+            if (employee != null) {
+                passwordCompare(request, employee.getPassword());
+                employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
+                employeeRepository.save(employee);
+                username = employee.getUsername();
+            } else {
+                throw new ResourceNotFoundException("Bạn chưa đăng nhập vào hệ thống.");
+            }
+        }
+        String refreshToken = (String) redisService.get("refresh_token:" + username);
+        jwtService.invalidateRefreshToken(refreshToken, username);
+        return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+    }
+
+
+    private void passwordCompare(ChangePasswordRequest request, String oldPassword) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), oldPassword)) {
+            throw new ApiException("Mật khẩu hiện tại không chính xác.");
+        }
+        if (!request.getConfirmPassword().equals(request.getNewPassword())) {
+            throw new ApiException("Mật khẩu xác nhận không trùng khớp mật khẩu mới.");
+        }
     }
 }

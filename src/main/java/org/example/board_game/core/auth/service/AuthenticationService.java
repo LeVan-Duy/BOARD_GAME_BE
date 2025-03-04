@@ -1,5 +1,6 @@
 package org.example.board_game.core.auth.service;
 
+import org.example.board_game.core.auth.dto.request.ChangePasswordRequest;
 import org.example.board_game.core.auth.dto.request.LoginRequest;
 import org.example.board_game.core.auth.dto.request.RefreshTokenRequest;
 import org.example.board_game.core.auth.dto.request.RegisterCustomerRequest;
@@ -15,4 +16,7 @@ public interface AuthenticationService {
     Response<TokenResponse> refreshToken(RefreshTokenRequest request);
 
     Response<Object> logout();
+
+    Response<Object> changePassword(ChangePasswordRequest request);
+
 }
