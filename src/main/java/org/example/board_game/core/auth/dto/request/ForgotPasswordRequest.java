@@ -1,4 +1,5 @@
 package org.example.board_game.core.auth.dto.request;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -9,9 +10,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ChangePasswordRequest extends PasswordResetRequest{
+public class ForgotPasswordRequest {
 
-    @NotNull(message = "Vui lòng nhập mật khẩu hiện tại của bạn.")
-    @NotBlank(message =  "Vui lòng nhập mật khẩu hiện tại của bạn.")
-    String currentPassword;
+    @NotBlank(message = "Vui lòng nhập email đăng nhập của bạn để quên mật khẩu.")
+    @NotNull(message = "Vui lòng nhập email đăng nhập của bạn để quên mật khẩu.")
+    String email;
 }
