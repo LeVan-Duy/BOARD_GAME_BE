@@ -47,9 +47,6 @@ public class Customer extends PrimaryEntity implements UserDetails {
     @Column(name = "url_image")
     String image;
 
-    @OneToMany(mappedBy = "customer")
-    List<Address> addressList;
-
 //    @OneToMany(mappedBy = "customer")
 //    List<Order> orders;
 

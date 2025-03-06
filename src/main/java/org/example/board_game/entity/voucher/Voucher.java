@@ -51,5 +51,8 @@ public class Voucher extends PrimaryEntity {
 
     @Column(name = "url_image")
     String image;
+
+    @Column(name = "description", length = EntityProperties.LENGTH_DESCRIPTION)
+    String description;
 }
 
