@@ -18,4 +18,8 @@ public final class EntityProperties {
     public static final int CODE_POST = 201;
     public static final String SUCCESS = "Thành công!";
 
+    public static final String REFRESH_TOKEN = "refresh_token:";
+    public static final String REFRESH_MAPPING = "refresh_mapping:";
+    public static final String BLACK_LIST = "blacklist:";
+
 }

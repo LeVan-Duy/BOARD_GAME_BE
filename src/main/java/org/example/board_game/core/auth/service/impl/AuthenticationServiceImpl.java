@@ -12,6 +12,7 @@ import org.example.board_game.core.auth.dto.response.TokenResponse;
 import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.JwtService;
 import org.example.board_game.core.auth.service.UserDetailService;
+import org.example.board_game.core.auth.utils.AuthHelper;
 import org.example.board_game.core.common.base.BaseRedisService;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Customer;
@@ -27,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -137,7 +137,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public Response<Object> logout() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = AuthHelper.getUsername();
         String refreshToken = (String) redisService.get("refresh_token:" + username);
         if (refreshToken != null) {
             jwtService.invalidateRefreshToken(refreshToken, username);
@@ -149,14 +149,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public Response<Object> changePassword(ChangePasswordRequest request) {
         String username;
-        Customer customer = entityService.getCurrentCustomer();
+        Customer customer = entityService.getCustomerByAuth();
         if (customer != null) {
             passwordCompare(request, customer.getPassword());
             customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
             customerRepository.save(customer);
             username = customer.getUsername();
         } else {
-            Employee employee = entityService.getCurrentEmployee();
+            Employee employee = entityService.getEmployeeByAuth();
             if (employee != null) {
                 passwordCompare(request, employee.getPassword());
                 employee.setPassword(passwordEncoder.encode(request.getNewPassword()));

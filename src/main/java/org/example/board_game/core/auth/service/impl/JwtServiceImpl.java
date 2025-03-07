@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.auth.service.JwtService;
 import org.example.board_game.core.common.base.BaseRedisService;
+import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.UUID;
@@ -60,38 +60,38 @@ public class JwtServiceImpl implements JwtService {
     public String createRefreshToken(UserDetails userDetails) {
 
         String token = UUID.randomUUID().toString();
-        String key = "refresh_token:" + userDetails.getUsername();
+        String key = EntityProperties.REFRESH_TOKEN + userDetails.getUsername();
 
         redisService.delete(key);
         redisService.set(key, token);
         redisService.setTimeToLive(key, REFRESH_TOKEN_EXPIRATION / 1000);
 
-        redisService.set("refresh_mapping:" + token, userDetails.getUsername());
-        redisService.setTimeToLive("refresh_mapping:" + token, REFRESH_TOKEN_EXPIRATION / 1000);
+        redisService.set(EntityProperties.REFRESH_MAPPING + token, userDetails.getUsername());
+        redisService.setTimeToLive(EntityProperties.REFRESH_MAPPING + token, REFRESH_TOKEN_EXPIRATION / 1000);
 
         return token;
     }
 
     @Override
     public boolean validRefreshToken(String token) {
-        if (redisService.exists("blacklist:" + token)) {
+        if (redisService.exists(EntityProperties.BLACK_LIST + token)) {
             return false;
         }
-        String username = (String) redisService.get("refresh_mapping:" + token);
+        String username = (String) redisService.get(EntityProperties.REFRESH_MAPPING + token);
         if (username == null) {
             return false;
         }
-        String storedToken = redisService.get("refresh_token:" + username).toString();
+        String storedToken = redisService.get(EntityProperties.REFRESH_TOKEN + username).toString();
         return token.equals(storedToken);
     }
 
     @Override
     public void invalidateRefreshToken(String token, String username) {
-        redisService.set("blacklist:" + token, "true");
-        redisService.setTimeToLive("blacklist:" + token, REFRESH_TOKEN_EXPIRATION / 1000);
+        redisService.set(EntityProperties.BLACK_LIST + token, "true");
+        redisService.setTimeToLive(EntityProperties.BLACK_LIST + token, REFRESH_TOKEN_EXPIRATION / 1000);
         if (username != null) {
-            redisService.delete("refresh_mapping:" + token);
-            redisService.delete("refresh_token:" + username);
+            redisService.delete(EntityProperties.REFRESH_MAPPING + token);
+            redisService.delete(EntityProperties.REFRESH_TOKEN + username);
         }
     }
 

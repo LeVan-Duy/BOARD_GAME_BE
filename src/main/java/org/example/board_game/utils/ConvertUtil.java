@@ -4,6 +4,7 @@ import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -17,6 +18,9 @@ public class ConvertUtil {
     public static LocalDateTime convertLongToLocalDateTime(Long longTime) {
         return LocalDateTime
                 .ofInstant(Instant.ofEpochMilli(longTime), TimeZone.getDefault().toZoneId());
+    }
+    public static Long convertDateToLong(Date date){
+        return date.getTime();
     }
 
     public static String convertFloatToVnd(float amount) {

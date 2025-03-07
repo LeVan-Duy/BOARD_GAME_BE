@@ -9,17 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ChangePasswordRequest {
+public class ChangePasswordRequest extends PasswordResetRequest{
 
     @NotNull(message = "Vui lòng nhập mật khẩu hiện tại của bạn.")
     @NotBlank(message =  "Vui lòng nhập mật khẩu hiện tại của bạn.")
     String currentPassword;
-
-    @NotNull(message = "Vui lòng nhập mật khẩu mới.")
-    @NotBlank(message = "Vui lòng nhập mật khẩu mới")
-    String newPassword;
-
-    @NotNull(message = "Vui lòng nhập lại mật khẩu xác nhận.")
-    @NotBlank(message = "Vui lòng nhập lại mật khẩu xác nhận.")
-    String confirmPassword;
 }

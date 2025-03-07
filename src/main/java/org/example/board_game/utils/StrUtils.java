@@ -5,6 +5,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 public final class StrUtils {
@@ -313,6 +314,10 @@ public final class StrUtils {
             return false;
         }
         return pattern.matcher(strNum).matches();
+    }
+
+    public static String getGuid() {
+        return UUID.randomUUID().toString();
     }
 
 }

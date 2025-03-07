@@ -6,8 +6,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.example.board_game.core.auth.utils.AuthHelper;
 import org.example.board_game.infrastructure.listener.AuditEntityListener;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Setter
@@ -29,21 +32,13 @@ public abstract class AuditEntity {
     @Column(name = "updated_by")
     String updatedBy;
 
-//    @PrePersist
-//    protected void onCreate() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-//            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//            this.createdBy = userDetails.getUsername();
-//        }
-//    }
+    @PrePersist
+    protected void onCreate() {
+        this.createdBy = AuthHelper.getUsername();
+    }
 
-//    @PreUpdate
-//    protected void onUpdate() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-//            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//            this.updatedBy = userDetails.getUsername();
-//        }
-//    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedBy = AuthHelper.getUsername();
+    }
 }
