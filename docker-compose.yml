@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: 'board-game-spring-boot-with-postgresql:latest'
+    image: 'board-game-be:latest'
     build: ./
     ports:
       - "8080:8080"
