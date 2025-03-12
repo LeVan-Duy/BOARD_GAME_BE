@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebInputException;
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
@@ -71,5 +69,13 @@ public class ApplicationExceptionHandler {
         String message = ex.getMessage() != null ? ex.getMessage() : "Không có quyền truy cập";
         Response data = Response.fail(message, HttpStatus.FORBIDDEN.value());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(data);
+    }
+
+    @ExceptionHandler(value = {UnauthorizedException.class})
+    protected ResponseEntity<Response> handleUnauthorizedException(UnauthorizedException ex) {
+        log.info(ex.getMessage());
+        String message = ex.getMessage() != null ? ex.getMessage() : "UNAUTHORIZED";
+        Response data = Response.fail(message, HttpStatus.UNAUTHORIZED.value());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(data);
     }
 }

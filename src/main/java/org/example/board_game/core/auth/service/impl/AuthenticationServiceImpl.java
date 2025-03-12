@@ -3,7 +3,9 @@ package org.example.board_game.core.auth.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.admin.domain.dto.response.employee.AdminEmployeeResponse;
 import org.example.board_game.core.admin.domain.mapper.customer.AdminCustomerMapper;
+import org.example.board_game.core.admin.domain.mapper.employee.AdminEmployeeMapper;
 import org.example.board_game.core.auth.dto.request.ChangePasswordRequest;
 import org.example.board_game.core.auth.dto.request.LoginRequest;
 import org.example.board_game.core.auth.dto.request.RefreshTokenRequest;
@@ -21,6 +23,7 @@ import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
+import org.example.board_game.infrastructure.exception.UnauthorizedException;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.utils.Response;
@@ -45,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserDetailService userDetailService;
     JwtService jwtService;
     AdminCustomerMapper customerMapper = AdminCustomerMapper.INSTANCE;
+    AdminEmployeeMapper employeeMapper = AdminEmployeeMapper.INSTANCE;
     BaseRedisService redisService;
 
     @Override
@@ -163,12 +167,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 employeeRepository.save(employee);
                 username = employee.getUsername();
             } else {
-                throw new ResourceNotFoundException("Bạn chưa đăng nhập vào hệ thống.");
+                throw new UnauthorizedException("Bạn chưa đăng nhập vào hệ thống.");
             }
         }
         String refreshToken = (String) redisService.get("refresh_token:" + username);
         jwtService.invalidateRefreshToken(refreshToken, username);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+    }
+
+    @Override
+    public Response<AdminEmployeeResponse> adminProfile() {
+        Employee employee = entityService.getEmployeeByAuth();
+        if (employee == null) {
+            throw new UnauthorizedException(null);
+        }
+        AdminEmployeeResponse response = employeeMapper.toResponse(employee);
+        return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
 
 
