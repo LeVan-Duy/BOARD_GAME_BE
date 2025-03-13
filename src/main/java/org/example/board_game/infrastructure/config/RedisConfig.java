@@ -21,7 +21,6 @@ public class RedisConfig {
         configuration.setHostName("172.172.181.59");
         configuration.setPort(6379);
         configuration.setPassword("100301");
-        return new LettuceConnectionFactory(configuration);
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
                 .commandTimeout(Duration.ofSeconds(60))  // Timeout cho lệnh Redis
                 .shutdownTimeout(Duration.ZERO)  // Không delay khi shutdown
