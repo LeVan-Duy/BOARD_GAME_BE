@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private void setErrorResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(EntityProperties.CODE_GET);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         Response<Object> errorResponse = Response.fail(message, HttpStatus.UNAUTHORIZED.value());

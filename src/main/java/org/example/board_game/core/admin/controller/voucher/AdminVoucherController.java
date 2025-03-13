@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/voucher")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminVoucherController extends BaseController<AdminVoucherResponse, String, AdminVoucherRequest> {
+
     AdminVoucherService adminVoucherService;
 
     public AdminVoucherController(AdminVoucherService service) {

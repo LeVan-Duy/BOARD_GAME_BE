@@ -4,16 +4,14 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.admin.domain.dto.response.employee.AdminEmployeeResponse;
 import org.example.board_game.core.auth.dto.request.*;
 import org.example.board_game.core.auth.dto.response.TokenResponse;
 import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.PasswordResetTokenService;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.utils.Response;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -60,5 +58,10 @@ public class AuthenticationController {
     @PostMapping("/reset-password")
     public Response<Object> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
         return passwordResetTokenService.resetPassword(request);
+    }
+
+    @GetMapping("/admin-profile")
+    public Response<AdminEmployeeResponse> getProfile() {
+        return authenticationService.adminProfile();
     }
 }
