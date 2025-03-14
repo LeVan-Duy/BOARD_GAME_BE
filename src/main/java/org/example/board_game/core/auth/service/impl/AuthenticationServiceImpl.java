@@ -15,6 +15,8 @@ import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.JwtService;
 import org.example.board_game.core.auth.service.UserDetailService;
 import org.example.board_game.core.auth.utils.AuthHelper;
+import org.example.board_game.core.client.domain.dto.response.customer.ClientCustomerResponse;
+import org.example.board_game.core.client.domain.mapper.customer.ClientCustomerMapper;
 import org.example.board_game.core.common.base.BaseRedisService;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Customer;
@@ -48,6 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     JwtService jwtService;
     AdminCustomerMapper customerMapper = AdminCustomerMapper.INSTANCE;
     AdminEmployeeMapper employeeMapper = AdminEmployeeMapper.INSTANCE;
+    ClientCustomerMapper clientCustomerMapper = ClientCustomerMapper.INSTANCE;
     BaseRedisService redisService;
 
     @Override
@@ -182,7 +185,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         AdminEmployeeResponse response = employeeMapper.toResponse(employee);
         return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
-
 
     private void passwordCompare(ChangePasswordRequest request, String oldPassword) {
         if (!passwordEncoder.matches(request.getCurrentPassword(), oldPassword)) {

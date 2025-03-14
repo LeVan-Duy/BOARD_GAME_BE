@@ -57,7 +57,7 @@ public class AdminAddressServiceImpl implements AdminAddressService {
         String customerId = request.getCustomerId();
 
         if (request.getIsDefault() == null) {
-            throw new ApiException("Không được để trống isDefault.");
+            throw new ApiException("Vui lòng tích chọn có phải địa chỉ mặc định hay không.");
         }
         Address address = entityService.getAddressByIdAndCustomer(id, customerId);
         if (request.getIsDefault()) {

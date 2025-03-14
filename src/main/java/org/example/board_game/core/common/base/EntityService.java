@@ -18,6 +18,8 @@ import org.example.board_game.repository.product.*;
 import org.example.board_game.repository.voucher.VoucherRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -107,9 +109,23 @@ public class EntityService {
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.ADDRESS_NOT_FOUND));
     }
 
+    public void updateDefaultAddressToFalse(String customerId,String addressId) {
+        Address addressDefault = addressRepository
+                .findByCustomer_IdAndDeletedFalseAndIsDefaultTrue(customerId)
+                .orElse(null);
+
+        if (addressDefault != null) {
+            if (!Objects.equals(addressDefault.getId(), addressId)) {
+                addressDefault.setIsDefault(false);
+                addressRepository.save(addressDefault);
+            }
+        }
+    }
+
     public Voucher getVoucher(String id) {
         return voucherRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.VOUCHER_NOT_FOUND));
     }
+
 }
