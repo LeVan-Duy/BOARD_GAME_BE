@@ -14,6 +14,7 @@ import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.entity.product.Author;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
@@ -49,11 +50,11 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
 
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailCustomer) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         boolean isExistEmailEmp = employeeRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailEmp) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         String password = passwordEncoder.encode(request.getPassword());
         request.setPassword(password);
@@ -67,11 +68,11 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
 
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailCustomer) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         boolean isExistEmailEmp = employeeRepository.existsByEmailAndDeletedFalseAndIdNotLike(request.getEmail(), id);
         if (isExistEmailEmp) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         Employee employee = entityService.getEmployee(id);
         request.setPassword(passwordEncoder.encode(request.getPassword()));

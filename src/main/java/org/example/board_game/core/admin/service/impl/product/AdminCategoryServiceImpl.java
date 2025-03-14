@@ -11,6 +11,7 @@ import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.Category;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.product.CategoryRepository;
@@ -42,7 +43,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     public Response<Object> create(AdminCategoryRequest request) {
         boolean isNameExist = categoryRepository.existsByNameAndDeletedFalse(request.getName());
         if (isNameExist) {
-            throw new ApiException("Category name already exist.");
+            throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         }
         Category category = categoryMapper.toEntity(request);
         categoryRepository.save(category);
@@ -54,11 +55,11 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
         boolean checkCategoryExists = categoryRepository.existsById(id);
         if (!checkCategoryExists) {
-            throw new ResourceNotFoundException("Category not found.");
+            throw new ResourceNotFoundException(MessageConstant.CATEGORY_NOT_FOUND);
         }
         boolean isNameExist = categoryRepository.existsByNameAndDeletedFalseAndIdNotLike(request.getName(), id);
         if (isNameExist) {
-            throw new ApiException("Category name already exist.");
+            throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         }
         request.setId(id);
         Category category = categoryMapper.toEntity(request);

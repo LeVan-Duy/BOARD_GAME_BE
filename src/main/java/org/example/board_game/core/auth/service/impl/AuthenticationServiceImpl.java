@@ -20,14 +20,13 @@ import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
 import org.example.board_game.infrastructure.exception.ApiException;
-import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.infrastructure.exception.UnauthorizedException;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.utils.Response;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -57,11 +56,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String email = request.getEmail();
         boolean isMailExistByCustomer = customerRepository.existsByEmailAndDeletedFalse(email);
         if (isMailExistByCustomer) {
-            throw new ApiException("Email này đã tồn tại trong hệ thống.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         boolean isMailExistByEmployee = customerRepository.existsByEmailAndDeletedFalse(email);
         if (isMailExistByEmployee) {
-            throw new ApiException("Email này đã tồn tại trong hệ thống.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Customer customer = customerMapper.byRegisterRequest(request);
@@ -74,7 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .build());
+                .build()).success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
     @Override
@@ -83,7 +82,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String email = request.getEmail();
         String accessToken;
         String refreshToken;
-        String messageError = "Thông tin tài khoản hoặc mật khẩu không chính xác. Vui lòng thử lại.";
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -92,23 +90,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     )
             );
         } catch (AuthenticationException exception) {
-            throw new ApiException(messageError);
+            throw new ApiException(MessageConstant.LOGIN_FAIL);
         }
         Customer customer = customerRepository.findByEmailAndDeletedFalse(email).orElse(null);
         if (customer == null) {
             Employee employee = employeeRepository.findByEmailAndDeletedFalse(email).orElse(null);
             if (employee == null) {
-                throw new ApiException(messageError);
+                throw new ApiException(MessageConstant.LOGIN_FAIL);
             }
             if (!passwordEncoder.matches(request.getPassword(), employee.getPassword())) {
-                throw new ApiException(messageError);
+                throw new ApiException(MessageConstant.LOGIN_FAIL);
             }
             accessToken = jwtService.generateToken(employee);
             refreshToken = jwtService.createRefreshToken(employee);
 
         } else {
             if (!passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-                throw new ApiException(messageError);
+                throw new ApiException(MessageConstant.LOGIN_FAIL);
             }
             accessToken = jwtService.generateToken(customer);
             refreshToken = jwtService.createRefreshToken(customer);
@@ -117,7 +115,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .build());
+                .build()).success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
     @Override
@@ -126,28 +124,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String refreshToken = request.getRefreshToken();
         String username = (String) redisService.get("refresh_mapping:" + refreshToken);
         if (username == null || !jwtService.validRefreshToken(refreshToken)) {
-            throw new ApiException("Refresh token không hợp lệ hoặc đã hết hạn.");
+            throw new UnauthorizedException(MessageConstant.UNAUTHORIZED);
         }
         UserDetails userDetails = userDetailService.loadUserByUsername(username);
         String newAccessToken = jwtService.generateToken(userDetails);
         String newRefreshToken = jwtService.createRefreshToken(userDetails);
 
         return Response.of(TokenResponse
-                .builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build());
+                        .builder()
+                        .accessToken(newAccessToken)
+                        .refreshToken(newRefreshToken)
+                        .build())
+                .success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
     @Override
     public Response<Object> logout() {
         String username = AuthHelper.getUsername();
         String refreshToken = (String) redisService.get("refresh_token:" + username);
-        if (refreshToken != null) {
-            jwtService.invalidateRefreshToken(refreshToken, username);
-            return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+        if (refreshToken == null) {
+            throw new UnauthorizedException(MessageConstant.UNAUTHORIZED);
         }
-        return Response.ok().success("Người dùng không hợp lệ.", HttpStatus.UNAUTHORIZED.value());
+        jwtService.invalidateRefreshToken(refreshToken, username);
+        return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
     @Override
@@ -161,14 +160,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             username = customer.getUsername();
         } else {
             Employee employee = entityService.getEmployeeByAuth();
-            if (employee != null) {
-                passwordCompare(request, employee.getPassword());
-                employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
-                employeeRepository.save(employee);
-                username = employee.getUsername();
-            } else {
-                throw new UnauthorizedException("Bạn chưa đăng nhập vào hệ thống.");
+            if (employee == null) {
+                throw new UnauthorizedException(MessageConstant.UNAUTHORIZED);
             }
+            passwordCompare(request, employee.getPassword());
+            employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            employeeRepository.save(employee);
+            username = employee.getUsername();
         }
         String refreshToken = (String) redisService.get("refresh_token:" + username);
         jwtService.invalidateRefreshToken(refreshToken, username);

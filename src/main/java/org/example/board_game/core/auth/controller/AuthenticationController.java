@@ -9,7 +9,6 @@ import org.example.board_game.core.auth.dto.request.*;
 import org.example.board_game.core.auth.dto.response.TokenResponse;
 import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.PasswordResetTokenService;
-import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,20 +23,17 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public Response<TokenResponse> register(@RequestBody @Valid RegisterCustomerRequest request) {
-        TokenResponse response = authenticationService.registerCustomer(request).getData();
-        return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+        return authenticationService.registerCustomer(request);
     }
 
     @PostMapping("/login")
     public Response<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
-        TokenResponse response = authenticationService.authenticate(request).getData();
-        return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+        return authenticationService.authenticate(request);
     }
 
     @PostMapping("/refresh")
     public Response<TokenResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest request) {
-        TokenResponse response = authenticationService.refreshToken(request).getData();
-        return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
+        return authenticationService.refreshToken(request);
     }
 
     @PostMapping("/logout")

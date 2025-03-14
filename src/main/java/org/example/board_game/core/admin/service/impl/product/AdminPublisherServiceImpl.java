@@ -11,6 +11,7 @@ import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.Publisher;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.product.PublisherRepository;
@@ -41,9 +42,7 @@ public class AdminPublisherServiceImpl implements AdminPublisherService {
     @Override
     public Response<Object> create(AdminPublisherRequest request) {
         boolean isNameExist = publisherRepository.existsByNameAndDeletedFalse(request.getName());
-        if (isNameExist) {
-            throw new ApiException("Publisher name already exist.");
-        }
+        if (isNameExist) throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         Publisher Publisher = PublisherMapper.toEntity(request);
         publisherRepository.save(Publisher);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
@@ -54,12 +53,10 @@ public class AdminPublisherServiceImpl implements AdminPublisherService {
 
         boolean checkPublisherExists = publisherRepository.existsById(id);
         if (!checkPublisherExists) {
-            throw new ResourceNotFoundException("Publisher not found.");
+            throw new ResourceNotFoundException(MessageConstant.PUBLISHER_NOT_FOUND);
         }
         boolean isNameExist = publisherRepository.existsByNameAndDeletedFalseAndIdNotLike(request.getName(), id);
-        if (isNameExist) {
-            throw new ApiException("Publisher name already exist.");
-        }
+        if (isNameExist) throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         request.setId(id);
         Publisher Publisher = PublisherMapper.toEntity(request);
         publisherRepository.save(Publisher);
