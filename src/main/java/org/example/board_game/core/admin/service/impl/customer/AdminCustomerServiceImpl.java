@@ -16,6 +16,7 @@ import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
@@ -71,11 +72,11 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
 
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailCustomer) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         boolean isExistEmailEmp = employeeRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailEmp) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         Customer customer = customerRepository.save(customerMapper.toEntity(request));
@@ -97,11 +98,11 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
 
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalseAndIdNotLike(request.getEmail(),id);
         if (isExistEmailCustomer) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         boolean isExistEmailEmp = employeeRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailEmp) {
-            throw new ApiException("Email này đã tồn tại.");
+            throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         Customer customer = entityService.getCustomer(id);
         request.setPassword(passwordEncoder.encode(request.getPassword()));

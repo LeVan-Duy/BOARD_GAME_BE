@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.auth.service.UserDetailService;
 import org.example.board_game.entity.employee.Employee;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
@@ -29,7 +30,7 @@ public class UserDetailServiceImpl implements UserDetailService {
         if (employee == null) {
             return customerRepository
                     .findByEmailAndDeletedFalse(username)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found."));
+                    .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.USER_NOT_FOUND));
         }
         return employee;
     }

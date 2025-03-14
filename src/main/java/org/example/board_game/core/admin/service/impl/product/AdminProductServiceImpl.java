@@ -14,6 +14,7 @@ import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.enums.ProductStatus;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
@@ -92,7 +93,7 @@ public class AdminProductServiceImpl implements AdminProductService {
             throw new ResourceNotFoundException("Vui lòng chọn ít nhất một thể loại cho sản phẩm này.");
         }
         boolean isNameExist = productRepository.existsByNameAndDeletedFalse(request.getName());
-        if (isNameExist)  throw new ApiException("Tên sản phẩm đã tồn tại.");
+        if (isNameExist)  throw new ApiException(MessageConstant.NAME_IS_EXISTS);
 
         Publisher publisher = entityService.getPublisher(request.getPublisherId());
         Author author = entityService.getAuthor(request.getAuthorId());
@@ -117,7 +118,7 @@ public class AdminProductServiceImpl implements AdminProductService {
         }
         boolean isNameExist = productRepository.existsByNameAndDeletedFalseAndIdNotLike(request.getName(), id);
         if (isNameExist) {
-            throw new ApiException("Tên sản phẩm đã tồn tại.");
+            throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         }
         Product product = entityService.getProduct(id);
         removeProductCategories(id);

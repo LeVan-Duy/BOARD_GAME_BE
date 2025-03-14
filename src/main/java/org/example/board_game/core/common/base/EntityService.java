@@ -9,6 +9,7 @@ import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.entity.voucher.Voucher;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
@@ -35,25 +36,25 @@ public class EntityService {
     public Category getCategory(String id) {
         return categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.CATEGORY_NOT_FOUND));
     }
 
     public Author getAuthor(String id) {
         return authorRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Author not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.AUTHOR_NOT_FOUND));
     }
 
     public Publisher getPublisher(String id) {
         return publisherRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Publisher not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.PUBLISHER_NOT_FOUND));
     }
 
     public Product getProduct(String id) {
         return productRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.PRODUCT_NOT_FOUND));
     }
 
     public ProductMedia getMediaByIdAndProductId(String id, String productId) {
@@ -85,13 +86,13 @@ public class EntityService {
     public Employee getEmployee(String id) {
         return employeeRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Employee not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.EMPLOYEE_NOT_FOUND));
     }
 
     public Customer getCustomer(String id) {
         return customerRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.CUSTOMER_NOT_FOUND));
     }
 
     public Address getAddressByIdAndCustomer(String id,String customerId) {
@@ -103,12 +104,12 @@ public class EntityService {
     public Address getAddress(String id) {
         return addressRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.ADDRESS_NOT_FOUND));
     }
 
     public Voucher getVoucher(String id) {
         return voucherRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Voucher not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.VOUCHER_NOT_FOUND));
     }
 }

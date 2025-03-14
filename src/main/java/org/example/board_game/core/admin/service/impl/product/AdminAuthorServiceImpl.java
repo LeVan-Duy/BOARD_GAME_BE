@@ -11,6 +11,7 @@ import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.Author;
 import org.example.board_game.infrastructure.constants.EntityProperties;
+import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.product.AuthorRepository;
@@ -42,7 +43,7 @@ public class AdminAuthorServiceImpl implements AdminAuthorService {
     public Response<Object> create(AdminAuthorRequest request) {
         boolean isNameExist = authorRepository.existsByNameAndDeletedFalse(request.getName());
         if (isNameExist) {
-            throw new ApiException("Author name already exist.");
+            throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         }
         Author Author = AuthorMapper.toEntity(request);
         authorRepository.save(Author);
@@ -54,11 +55,11 @@ public class AdminAuthorServiceImpl implements AdminAuthorService {
 
         boolean checkAuthorExists = authorRepository.existsById(id);
         if (!checkAuthorExists) {
-            throw new ResourceNotFoundException("Author not found.");
+            throw new ResourceNotFoundException(MessageConstant.AUTHOR_NOT_FOUND);
         }
         boolean isNameExist = authorRepository.existsByNameAndDeletedFalseAndIdNotLike(request.getName(), id);
         if (isNameExist) {
-            throw new ApiException("Author name already exist.");
+            throw new ApiException(MessageConstant.NAME_IS_EXISTS);
         }
         request.setId(id);
         Author Author = AuthorMapper.toEntity(request);
