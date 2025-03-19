@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,18 @@ public interface AddressRepository extends JpaRepository<Address, String> {
     List<Tuple> getAllByCustomerIds(List<String> customerIds);
 
     @Query("""
-        SELECT COUNT(x.id)
-        FROM Address x
-        WHERE x.customer.id = :customerId AND x.deleted = FALSE
-        """)
+            SELECT x.id as id, x.phoneNumber as phoneNumber, x.detailAddress as detailAddress, x.districtId as districtId,
+                   x.isDefault as isDefault, x.provinceId as provinceId, x.wardCode as wardCode, x.customer.id as customerId
+            FROM Address x
+            WHERE x.customer.id = :customerId AND x.deleted = FALSE
+            """)
+    List<Tuple> getAllByCustomerId(String customerId);
+
+    @Query("""
+            SELECT COUNT(x.id)
+            FROM Address x
+            WHERE x.customer.id = :customerId AND x.deleted = FALSE
+            """)
     Optional<Long> countAddressesByCustomerId(String customerId);
 
     @Query("""
@@ -38,6 +47,8 @@ public interface AddressRepository extends JpaRepository<Address, String> {
     Optional<Address> findByIdAndCustomer_IdAndDeletedFalse(String id, String customerId);
 
     Optional<Address> findByCustomer_IdAndDeletedFalseAndIsDefaultTrue(String customerId);
+
+    List<Address> getAllByCustomer_IdAndDeletedFalse(String customerId);
 
 
 }

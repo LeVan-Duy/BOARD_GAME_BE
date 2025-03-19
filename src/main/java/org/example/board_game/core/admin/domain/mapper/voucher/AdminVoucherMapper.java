@@ -15,5 +15,6 @@ public interface AdminVoucherMapper extends BaseMapper<AdminVoucherResponse, Vou
     AdminVoucherMapper INSTANCE = Mappers.getMapper(AdminVoucherMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", ignore = true)
     void updateVoucher(AdminVoucherRequest request, @MappingTarget Voucher voucher);
 }

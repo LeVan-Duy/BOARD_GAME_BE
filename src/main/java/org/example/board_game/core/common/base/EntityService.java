@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.auth.utils.AuthHelper;
+import org.example.board_game.entity.cart.Cart;
+import org.example.board_game.entity.cart.CartDetail;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
@@ -11,12 +13,15 @@ import org.example.board_game.entity.product.*;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
+import org.example.board_game.repository.cart.CartDetailRepository;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.repository.product.*;
 import org.example.board_game.repository.voucher.VoucherRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class EntityService {
     EmployeeRepository employeeRepository;
     AddressRepository addressRepository;
     VoucherRepository voucherRepository;
+    CartDetailRepository cartDetailRepository;
 
     public Category getCategory(String id) {
         return categoryRepository
@@ -95,9 +101,9 @@ public class EntityService {
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.CUSTOMER_NOT_FOUND));
     }
 
-    public Address getAddressByIdAndCustomer(String id,String customerId) {
+    public Address getAddressByIdAndCustomer(String id, String customerId) {
         return addressRepository
-                .findByIdAndCustomer_IdAndDeletedFalse(id,customerId)
+                .findByIdAndCustomer_IdAndDeletedFalse(id, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Địa chỉ của khách hàng này không tìm thấy."));
     }
 
@@ -107,9 +113,29 @@ public class EntityService {
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.ADDRESS_NOT_FOUND));
     }
 
+    public void updateDefaultAddressToFalse(String customerId, String addressId) {
+        Address addressDefault = addressRepository
+                .findByCustomer_IdAndDeletedFalseAndIsDefaultTrue(customerId)
+                .orElse(null);
+
+        if (addressDefault != null) {
+            if (!Objects.equals(addressDefault.getId(), addressId)) {
+                addressDefault.setIsDefault(false);
+                addressRepository.save(addressDefault);
+            }
+        }
+    }
+
     public Voucher getVoucher(String id) {
         return voucherRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.VOUCHER_NOT_FOUND));
     }
+
+    public CartDetail getCartDetail(String id, Cart cart) {
+        return cartDetailRepository
+                .findByIdAndCart(id, cart)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm này trong giỏ hàng."));
+    }
+
 }

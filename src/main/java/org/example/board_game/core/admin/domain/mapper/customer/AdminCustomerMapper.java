@@ -16,6 +16,7 @@ public interface AdminCustomerMapper extends BaseMapper<AdminCustomerResponse, C
     AdminCustomerMapper INSTANCE = Mappers.getMapper(AdminCustomerMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
     void updateCustomer(AdminCustomerRequest request, @MappingTarget Customer employee);
 
     Customer byRegisterRequest(RegisterCustomerRequest request);

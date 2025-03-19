@@ -28,8 +28,6 @@ public class AdminCustomerRequest extends PageableRequest {
     @NotNull(message = "Ngày sinh không được bỏ trống.")
     Long dateOfBirth;
 
-    @NotBlank(message = "Password không được bỏ trống.")
-    @NotNull(message = "Password không được bỏ trống.")
     String password;
 
     CustomerStatus status;

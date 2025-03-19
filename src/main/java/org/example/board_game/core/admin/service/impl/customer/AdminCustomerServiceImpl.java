@@ -24,6 +24,7 @@ import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.utils.CollectionUtils;
 import org.example.board_game.utils.PaginationUtil;
 import org.example.board_game.utils.Response;
+import org.example.board_game.utils.StrUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,7 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
 
         List<AdminCustomerResponse> responses = page.getContent().stream().map(tuple -> {
             AdminCustomerResponse response = new AdminCustomerResponse(tuple);
+            response.setPassword("");
             String customerId = tuple.get("id", String.class);
             List<Tuple> address = groupByCustomerId.getOrDefault(customerId, Collections.emptyList());
             List<AdminAddressResponse> addressResponses = address.stream().map(AdminAddressResponse::new).toList();
@@ -70,6 +72,9 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
     @Override
     public Response<Object> create(AdminCustomerRequest request) {
 
+        if (StrUtils.isBlank(request.getPassword())) {
+            throw new ApiException("Vui lòng nhập mật khẩu cho khách hàng.");
+        }
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailCustomer) {
             throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
@@ -105,8 +110,10 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
             throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         Customer customer = entityService.getCustomer(id);
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
         customerMapper.updateCustomer(request, customer);
+        if (StrUtils.isNotBlank(request.getPassword())) {
+            customer.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         customerRepository.save(customer);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }

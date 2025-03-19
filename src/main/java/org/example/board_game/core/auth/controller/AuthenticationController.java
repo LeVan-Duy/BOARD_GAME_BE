@@ -9,6 +9,7 @@ import org.example.board_game.core.auth.dto.request.*;
 import org.example.board_game.core.auth.dto.response.TokenResponse;
 import org.example.board_game.core.auth.service.AuthenticationService;
 import org.example.board_game.core.auth.service.PasswordResetTokenService;
+import org.example.board_game.core.client.domain.dto.response.customer.ClientCustomerResponse;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,7 +58,7 @@ public class AuthenticationController {
     }
 
     @GetMapping("/admin-profile")
-    public Response<AdminEmployeeResponse> getProfile() {
+    public Response<AdminEmployeeResponse> getAdminProfile() {
         return authenticationService.adminProfile();
     }
 }
