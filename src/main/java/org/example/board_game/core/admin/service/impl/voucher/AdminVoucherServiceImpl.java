@@ -58,6 +58,7 @@ public class AdminVoucherServiceImpl implements AdminVoucherService {
         Long currentDate = ConvertUtil.convertDateToLong(new Date());
         VoucherStatus voucherStatus = voucherStatus(currentDate, startDate, endDate);
         voucher.setStatus(voucherStatus);
+
         voucherRepository.save(voucher);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
@@ -74,6 +75,7 @@ public class AdminVoucherServiceImpl implements AdminVoucherService {
         Long endDate = request.getEndDate();
         Long startDate = request.getStartDate();
         Long currentDate = ConvertUtil.convertDateToLong(new Date());
+        voucherMapper.updateVoucher(request,voucher);
         VoucherStatus voucherStatus = voucherStatus(currentDate, startDate, endDate);
         voucher.setStatus(voucherStatus);
         voucherRepository.save(voucher);

@@ -9,6 +9,8 @@ import org.example.board_game.core.common.base.BaseController;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/address")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,6 +26,11 @@ public class AdminAddressController extends BaseController<AdminAddressResponse,
     @PostMapping("/update-default/{id}")
     public Response<Object> updateDefaultAddress(@PathVariable("id") String id) {
         return adminAddressService.updateDefaultAddress(id);
+    }
+
+    @GetMapping("/get-all-by-customerId/{id}")
+    public Response<List<AdminAddressResponse>> getAllByCustomer(@PathVariable("id") String id) {
+        return adminAddressService.getAllByCustomerId(id);
     }
 
 }

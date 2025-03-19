@@ -1,5 +1,6 @@
 package org.example.board_game.core.admin.service.impl.customer;
 
+import jakarta.persistence.Tuple;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +19,7 @@ import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.utils.Response;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -47,6 +49,7 @@ public class AdminAddressServiceImpl implements AdminAddressService {
         boolean hasDefaultAddress = addressRepository.existsIsDefaultByCustomer(customer);
         Address address = addressMapper.toEntity(request);
         address.setIsDefault(!hasDefaultAddress);
+        address.setCustomer(customer);
         addressRepository.save(address);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
@@ -91,6 +94,13 @@ public class AdminAddressServiceImpl implements AdminAddressService {
         address.setDeleted(true);
         addressRepository.save(address);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
+    }
+
+    @Override
+    public Response<List<AdminAddressResponse>> getAllByCustomerId(String customerId) {
+        List<Tuple> addressList = addressRepository.getAllByCustomerId(customerId);
+        List<AdminAddressResponse> addressResponses = addressList.stream().map(AdminAddressResponse::new).toList();
+        return Response.of(addressResponses).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
 
     @Override

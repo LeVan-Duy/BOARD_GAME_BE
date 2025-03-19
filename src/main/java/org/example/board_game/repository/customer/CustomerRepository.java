@@ -19,7 +19,7 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
 
     @Query("""
             SELECT x.id as id, x.fullName as fullName, x.status as status, x.dateOfBirth as dateOfBirth,
-                   x.email as email, x.gender as gender, x.image as image, x.password as password
+                   x.email as email, x.gender as gender, x.image as image
             FROM Customer x
             WHERE
                 (:#{#request.q} IS NULL OR :#{#request.q} ILIKE ''  OR x.fullName ILIKE CONCAT('%', :#{#request.q}, '%')

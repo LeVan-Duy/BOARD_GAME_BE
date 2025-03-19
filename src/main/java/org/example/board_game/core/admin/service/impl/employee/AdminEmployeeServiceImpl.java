@@ -20,6 +20,7 @@ import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
 import org.example.board_game.utils.PaginationUtil;
 import org.example.board_game.utils.Response;
+import org.example.board_game.utils.StrUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +49,9 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
     @Override
     public Response<Object> create(AdminEmployeeRequest request) {
 
+        if (StrUtils.isBlank(request.getPassword())) {
+            throw new ApiException("Vui lòng nhập mật khẩu.");
+        }
         boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalse(request.getEmail());
         if (isExistEmailCustomer) {
             throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
@@ -75,8 +79,10 @@ public class AdminEmployeeServiceImpl implements AdminEmployeeService {
             throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
         Employee employee = entityService.getEmployee(id);
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
         employeeMapper.updateEmployee(request, employee);
+        if (StrUtils.isNotBlank(request.getPassword())) {
+            employee.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         employeeRepository.save(employee);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }

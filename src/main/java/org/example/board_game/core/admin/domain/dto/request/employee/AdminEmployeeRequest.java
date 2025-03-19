@@ -25,7 +25,6 @@ public class AdminEmployeeRequest extends PageableRequest {
     @NotBlank(message = "Email không được bỏ trống.")
     String email;
 
-    @NotBlank(message = "Password không được bỏ trống.")
     String password;
 
     EmployeeStatus status;

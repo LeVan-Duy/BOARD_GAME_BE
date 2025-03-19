@@ -38,7 +38,6 @@ public class AdminCustomerResponse {
         this.fullName = tuple.get("fullName",String.class);
         this.email = tuple.get("email",String.class);
         this.dateOfBirth = tuple.get("dateOfBirth",Long.class);
-        this.password = tuple.get("password",String.class);
         this.status = tuple.get("status",CustomerStatus.class);
         this.gender = tuple.get("gender",Gender.class);
         this.image = tuple.get("image",String.class);

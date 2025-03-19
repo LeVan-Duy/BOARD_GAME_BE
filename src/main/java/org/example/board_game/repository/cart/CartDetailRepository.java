@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CartDetailRepository extends JpaRepository<CartDetail, String> {
@@ -29,5 +31,9 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, String> 
     List<CartDetail> findAllCartDetail(@Param("request") BaseRequest request, String cartId);
 
     CartDetail findByProductAndCart(Product product, Cart cart);
+
+    Optional<CartDetail> findByIdAndCart(String id, Cart cart);
+
+    List<CartDetail> findAllByCartAndIdIn(Cart cart, List<String> id);
 
 }

@@ -13,6 +13,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ClientAddProductToCartRequest {
 
+    String id;
+
     @NotBlank(message = "Vui lòng chọn sản phẩm bạn muốn thêm vào giỏ hàng.")
     String productId;
 
