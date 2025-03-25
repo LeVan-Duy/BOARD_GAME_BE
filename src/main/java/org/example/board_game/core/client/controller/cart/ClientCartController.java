@@ -11,7 +11,6 @@ import org.example.board_game.core.common.base.BaseListIdRequest;
 import org.example.board_game.core.common.base.BaseRequest;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

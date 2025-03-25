@@ -14,7 +14,6 @@ import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.enums.OrderType;
 import org.example.board_game.utils.RandomStringUtil;
-
 import java.util.List;
 
 @Getter

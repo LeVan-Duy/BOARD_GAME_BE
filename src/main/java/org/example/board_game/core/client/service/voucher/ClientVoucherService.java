@@ -1,11 +1,11 @@
 package org.example.board_game.core.client.service.voucher;
 
-import org.example.board_game.core.admin.domain.dto.request.voucher.AdminVoucherRequest;
-import org.example.board_game.core.admin.domain.dto.response.voucher.AdminVoucherResponse;
-import org.example.board_game.core.common.base.BaseService;
+import org.example.board_game.core.client.domain.dto.request.voucher.ClientVoucherRequest;
+import org.example.board_game.core.client.domain.dto.response.voucher.ClientVoucherResponse;
+import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.utils.Response;
 
-public interface ClientVoucherService extends BaseService<AdminVoucherResponse, String, AdminVoucherRequest> {
+public interface ClientVoucherService {
 
-    Response<Object> deactivateVoucher(String voucherId);
+    Response<PageableObject<ClientVoucherResponse>> findAll(ClientVoucherRequest request);
 }

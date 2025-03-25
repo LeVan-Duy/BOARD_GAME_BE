@@ -103,9 +103,7 @@ public class ClientCartServiceImpl implements ClientCartService {
         }
         Product product = cartDetail.getProduct();
         int quantityProduct = product.getQuantity();
-        int quantityCartDetail = cartDetail.getQuantity();
-
-        if (quantityReq > quantityCartDetail && quantityReq > quantityProduct) {
+        if (quantityReq > quantityProduct) {
             throw new ApiException("Số lượng sản phẩm tồn kho không đủ.");
         }
         cartDetail.setQuantity(quantityReq);
