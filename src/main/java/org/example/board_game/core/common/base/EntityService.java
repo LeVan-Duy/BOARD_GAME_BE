@@ -9,6 +9,8 @@ import org.example.board_game.entity.cart.CartDetail;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
+import org.example.board_game.entity.order.Order;
+import org.example.board_game.entity.order.OrderDetail;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.constants.MessageConstant;
@@ -17,10 +19,14 @@ import org.example.board_game.repository.cart.CartDetailRepository;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
+import org.example.board_game.repository.order.OrderRepository;
 import org.example.board_game.repository.product.*;
 import org.example.board_game.repository.voucher.VoucherRepository;
+import org.example.board_game.utils.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -38,6 +44,7 @@ public class EntityService {
     AddressRepository addressRepository;
     VoucherRepository voucherRepository;
     CartDetailRepository cartDetailRepository;
+    OrderRepository orderRepository;
 
     public Category getCategory(String id) {
         return categoryRepository
@@ -136,6 +143,19 @@ public class EntityService {
         return cartDetailRepository
                 .findByIdAndCart(id, cart)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm này trong giỏ hàng."));
+    }
+
+    public Order getOrder(String id) {
+        return orderRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tìm thấy."));
+    }
+
+    public Float totalMoneyOrderDetail(List<OrderDetail> list) {
+        return list == null ? 0.0f :
+                (float) list.stream()
+                        .mapToDouble(od -> od.getPrice() * od.getQuantity())
+                        .sum();
     }
 
 }

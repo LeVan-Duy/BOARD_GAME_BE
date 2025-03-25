@@ -30,4 +30,6 @@ public class ClientVoucherResponse extends BaseResponse {
     String image;
 
     VoucherStatus status;
+
+    boolean isAllow;
 }

@@ -14,6 +14,7 @@ public final class EntityProperties {
     public static final byte LENGTH_CODE = 20;
     public static final byte LENGTH_PHONE = 10;
     public static final int EXPIRATION = 5;
+    public static final int MAX_ORDER_PENDING = 5;
     public static final int CODE_GET = 200;
     public static final int CODE_POST = 201;
     public static final String SUCCESS = "Thành công!";

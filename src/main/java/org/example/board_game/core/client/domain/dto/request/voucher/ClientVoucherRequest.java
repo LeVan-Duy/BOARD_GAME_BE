@@ -1,12 +1,10 @@
 package org.example.board_game.core.client.domain.dto.request.voucher;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.common.base.BaseRequest;
-import org.example.board_game.infrastructure.enums.VoucherStatus;
 import org.example.board_game.infrastructure.enums.VoucherType;
 
 @Getter
@@ -16,26 +14,16 @@ public class ClientVoucherRequest extends BaseRequest {
 
     String code;
 
-    VoucherStatus status;
-
-    @NotNull(message = "Vui lòng chọn loại voucher.")
     VoucherType type;
 
     float value;
 
-    float constraint;
+    Float constraint;
 
-    int quantity;
-
-    @NotNull(message = "Vui lòng nhập ngày bắt đầu voucher.")
     Long startDate;
 
-    @NotNull(message = "Vui lòng nhập ngày kết thúc voucher.")
     Long endDate;
 
-    String image;
-
-    // filter
     Float constraintMin;
     Float constraintMax;
 

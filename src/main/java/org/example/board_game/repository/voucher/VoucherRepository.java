@@ -3,6 +3,7 @@ package org.example.board_game.repository.voucher;
 import jakarta.transaction.Transactional;
 import org.example.board_game.core.admin.domain.dto.request.product.AdminCategoryRequest;
 import org.example.board_game.core.admin.domain.dto.request.voucher.AdminVoucherRequest;
+import org.example.board_game.core.client.domain.dto.request.voucher.ClientVoucherRequest;
 import org.example.board_game.entity.product.Category;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.enums.VoucherStatus;
@@ -47,7 +48,37 @@ public interface VoucherRepository extends JpaRepository<Voucher, String> {
                                  @Param("status") VoucherStatus voucherStatus,
                                  @Param("type") VoucherType voucherType);
 
+
+    @Query("""
+                SELECT x FROM Voucher x
+                WHERE
+                    (:#{#request.q} IS NULL OR :#{#request.q} ILIKE '' OR x.name ILIKE CONCAT('%', :#{#request.q}, '%') OR x.code ILIKE CONCAT('%', :#{#request.q}, '%'))
+                    AND
+                    (:type IS NULL OR x.type = :type)
+                    AND
+                    (:#{#request.quantityMin} IS NULL OR :#{#request.quantityMin} <= x.quantity)
+                    AND
+                    (:#{#request.quantityMax} IS NULL OR :#{#request.quantityMax} >= x.quantity)
+                    AND
+                    (:#{#request.valueMin} IS NULL OR x.value >= :#{#request.valueMin})
+                    AND
+                    (:#{#request.valueMax} IS NULL OR x.value <= :#{#request.valueMax})
+                    AND
+                    (:#{#request.constraintMin} IS NULL OR :#{#request.constraintMin} <= x.constraint)
+                    AND
+                    (:#{#request.constraintMax} IS NULL OR :#{#request.constraintMax} >= x.constraint)
+                    AND
+                    (:#{#request.startDate} IS NULL OR x.startDate >= :#{#request.startDate})
+                    AND
+                    (:#{#request.endDate} IS NULL OR x.endDate >= :#{#request.endDate})
+                    AND
+                    (x.deleted = FALSE) AND (x.status = 0) AND (x.quantity > 0)
+            """)
+    Page<Voucher> findAllVoucherForClient(@Param("request") ClientVoucherRequest request, Pageable pageable,
+                                          @Param("type") VoucherType voucherType);
+
     boolean existsByCodeAndDeletedFalse(String code);
+
     boolean existsByCodeAndDeletedFalseAndIdNotLike(String code, String id);
 
 

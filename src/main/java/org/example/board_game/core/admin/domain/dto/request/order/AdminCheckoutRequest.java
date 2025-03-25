@@ -8,14 +8,6 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AdminOrderRequest {
-
-    String orderId;
-
-    String customerId;
-
-    String voucherId;
-
-    String note;
+public class AdminCheckoutRequest {
 
 }

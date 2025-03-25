@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.board_game.entity.base.PrimaryEntity;
 import org.example.board_game.entity.product.Product;
-import org.example.board_game.infrastructure.enums.OrderStatus;
 
 @Getter
 @Setter
@@ -30,6 +29,4 @@ public class OrderDetail extends PrimaryEntity {
     @Column(name = "total_price")
     private float totalPrice;
 
-    @Column(name = "status")
-    private OrderStatus status;
 }

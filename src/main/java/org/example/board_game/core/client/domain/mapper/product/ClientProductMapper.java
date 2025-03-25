@@ -33,7 +33,4 @@ public interface ClientProductMapper extends BaseMapper<ClientProductResponse, P
     @Override
     List<ClientProductResponse> toResponseList(List<Product> entities);
 
-    @Mapping(target = "id", ignore = true)
-    void updateProduct(ClientProductRequest request, @MappingTarget Product product);
-
 }

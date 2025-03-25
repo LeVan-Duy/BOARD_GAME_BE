@@ -56,7 +56,7 @@ public class SecurityConfiguration {
                                         , "/admin/promotions/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                                .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
+//                                .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
                                 .requestMatchers("/auth/client/me").hasAnyRole("CUSTOMER")
                                 .requestMatchers("/auth/admin/me").hasAnyRole("ADMIN", "EMPLOYEE")
                                 .anyRequest()

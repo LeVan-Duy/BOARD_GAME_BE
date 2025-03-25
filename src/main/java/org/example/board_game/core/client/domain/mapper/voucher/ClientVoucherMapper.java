@@ -14,6 +14,4 @@ public interface ClientVoucherMapper extends BaseMapper<ClientVoucherResponse, V
 
     ClientVoucherMapper INSTANCE = Mappers.getMapper(ClientVoucherMapper.class);
 
-    @Mapping(target = "id", ignore = true)
-    void updateVoucher(ClientVoucherRequest request, @MappingTarget Voucher voucher);
 }

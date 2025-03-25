@@ -42,4 +42,6 @@ public class ClientProductResponse extends BaseResponse {
     String language;
 
     ProductStatus status;
+
+    Long soldCount;
 }
