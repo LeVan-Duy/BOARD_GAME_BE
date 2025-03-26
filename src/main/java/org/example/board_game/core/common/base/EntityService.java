@@ -11,14 +11,17 @@ import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.entity.order.Order;
 import org.example.board_game.entity.order.OrderDetail;
+import org.example.board_game.entity.order.OrderHistory;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.constants.MessageConstant;
+import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.repository.cart.CartDetailRepository;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
+import org.example.board_game.repository.order.OrderHistoryRepository;
 import org.example.board_game.repository.order.OrderRepository;
 import org.example.board_game.repository.product.*;
 import org.example.board_game.repository.voucher.VoucherRepository;
@@ -45,6 +48,7 @@ public class EntityService {
     VoucherRepository voucherRepository;
     CartDetailRepository cartDetailRepository;
     OrderRepository orderRepository;
+    OrderHistoryRepository orderHistoryRepository;
 
     public Category getCategory(String id) {
         return categoryRepository
@@ -156,6 +160,14 @@ public class EntityService {
                 (float) list.stream()
                         .mapToDouble(od -> od.getPrice() * od.getQuantity())
                         .sum();
+    }
+
+    public void createOrderHistory(Order order, OrderStatus status) {
+        OrderHistory orderHistory = new OrderHistory();
+        orderHistory.setOrder(order);
+        orderHistory.setActionStatus(status);
+        orderHistory.setNote(status.name);
+        orderHistoryRepository.save(orderHistory);
     }
 
 }

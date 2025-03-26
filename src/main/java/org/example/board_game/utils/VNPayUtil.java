@@ -1,14 +1,9 @@
 package org.example.board_game.utils;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Component
@@ -16,7 +11,7 @@ public class VNPayUtil {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
-    public static String vnp_Returnurl = "http://localhost:8080/api/client/transaction/authenticate";
+    public static String vnp_ReturnUrl = "http://localhost:8080/api/client/transaction/authenticate";
 
     public static String vnp_TmnCode = "6ATWTPCI";
 
@@ -24,37 +19,6 @@ public class VNPayUtil {
 
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
-    public static String md5(String message) {
-        String digest = null;
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(message.getBytes("UTF-8"));
-            StringBuilder sb = new StringBuilder(2 * hash.length);
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            digest = sb.toString();
-        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            digest = "";
-        }
-        return digest;
-    }
-
-    public static String Sha256(String message) {
-        String digest = null;
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(message.getBytes("UTF-8"));
-            StringBuilder sb = new StringBuilder(2 * hash.length);
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            digest = sb.toString();
-        } catch (UnsupportedEncodingException | NoSuchAlgorithmException ex) {
-            digest = "";
-        }
-        return digest;
-    }
 
     //Util for VNPAY
     public static String hashAllFields(Map fields) {
@@ -100,17 +64,15 @@ public class VNPayUtil {
         }
     }
 
-    public static String getIpAddress(HttpServletRequest request) {
-        String ipAdress;
-        try {
-            ipAdress = request.getHeader("X-FORWARDED-FOR");
-            if (ipAdress == null) {
-                ipAdress = request.getLocalAddr();
-            }
-        } catch (Exception e) {
-            ipAdress = "Invalid IP:" + e.getMessage();
+    public static String getQueryUrl(Map<String, String> params, String hashSecret) {
+        List<String> fieldNames = new ArrayList<>(params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder data = new StringBuilder();
+        for (String fieldName : fieldNames) {
+            data.append(fieldName).append('=').append(params.get(fieldName)).append('&');
         }
-        return ipAdress;
+        String rawData = data.substring(0, data.length() - 1);
+        return rawData + "&vnp_SecureHash=" + hmacSHA512(hashSecret, rawData);
     }
 
     public static String getRandomNumber(int len) {

@@ -23,4 +23,6 @@ public final class EntityProperties {
     public static final String REFRESH_MAPPING = "refresh_mapping:";
     public static final String BLACK_LIST = "blacklist:";
 
+    public static final Long DELIVERY_TIME_IN_MILLIS = 24L * 60 * 60 * 1000;
+
 }

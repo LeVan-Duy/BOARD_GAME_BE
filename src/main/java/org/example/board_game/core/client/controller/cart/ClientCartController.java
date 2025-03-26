@@ -46,4 +46,9 @@ public class ClientCartController {
         return cartService.removeProductsInCart(request);
     }
 
+    @PostMapping("/merge")
+    public Response<Object> mergeClientToServerCart(@RequestBody List<ClientAddProductToCartRequest> request) {
+        return cartService.mergeClientToServer(request);
+    }
+
 }

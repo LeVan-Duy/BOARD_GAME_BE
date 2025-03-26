@@ -64,7 +64,7 @@ public class ClientProductServiceImpl implements ClientProductService {
         }
         List<Tuple> getTopSeller = orderDetailRepository.findTopSellerProducts(request.getStartDate(), request.getEndDate());
         List<String> productIds = CollectionUtils.extractField(getTopSeller, tuple -> tuple.get("productId", String.class));
-        List<Product> products = productRepository.findAllSellerProduct(productIds);
+        List<Product> products = productRepository.findAllByIds(productIds);
         Map<String, Long> getSoldCountMap = getSoldCountMap(getTopSeller);
 
         List<ClientProductResponse> responseList = products.stream()

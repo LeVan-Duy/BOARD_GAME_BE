@@ -4,14 +4,10 @@ import org.example.board_game.core.common.base.BaseRequest;
 import org.example.board_game.entity.cart.Cart;
 import org.example.board_game.entity.cart.CartDetail;
 import org.example.board_game.entity.product.Product;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,5 +31,7 @@ public interface CartDetailRepository extends JpaRepository<CartDetail, String> 
     Optional<CartDetail> findByIdAndCart(String id, Cart cart);
 
     List<CartDetail> findAllByCartAndIdIn(Cart cart, List<String> id);
+
+    List<CartDetail> findAllByProductInAndCart(List<Product> products, Cart cart);
 
 }

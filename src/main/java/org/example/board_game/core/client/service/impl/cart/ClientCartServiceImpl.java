@@ -20,10 +20,14 @@ import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.infrastructure.exception.ResourceNotFoundException;
 import org.example.board_game.infrastructure.exception.UnauthorizedException;
 import org.example.board_game.repository.cart.CartDetailRepository;
+import org.example.board_game.repository.product.ProductRepository;
+import org.example.board_game.utils.CollectionUtils;
 import org.example.board_game.utils.Response;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -32,6 +36,7 @@ public class ClientCartServiceImpl implements ClientCartService {
 
     EntityService entityService;
     CartDetailRepository cartDetailRepository;
+    ProductRepository productRepository;
     ClientProductMapper productMapper = ClientProductMapper.INSTANCE;
 
     @Override
@@ -137,9 +142,41 @@ public class ClientCartServiceImpl implements ClientCartService {
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
-    //todo có thể thêm orderId vào cartDetail để xóa cartDetail đó khi thanh toán
-    //todo thêm hàm mearch giỏ hàng local với giỏ hàng trong db khi login
+    @Override
+    public Response<Object> mergeClientToServer(List<ClientAddProductToCartRequest> requests) {
 
+        Cart cart = getCartByUser();
+        List<String> productIds = CollectionUtils.extractField(requests, ClientAddProductToCartRequest::getProductId);
+        List<Product> products = productRepository.findAllByIds(productIds);
+        if (products.isEmpty()) {
+            return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
+        }
+        List<CartDetail> cartDetails = cartDetailRepository.findAllByProductInAndCart(products, cart);
+        Map<String, CartDetail> cartDetailMap = CollectionUtils.collectToMap(cartDetails, cartDetail -> cartDetail.getProduct().getId());
+        Map<String, Product> productMap = CollectionUtils.collectToMap(products, Product::getId);
+        List<CartDetail> updatedCartDetails = new ArrayList<>();
+
+        requests.forEach(item -> {
+            Product product = productMap.get(item.getProductId());
+            if (product == null) {
+                return;
+            }
+            CartDetail cartDetail = cartDetailMap.getOrDefault(item.getProductId(), new CartDetail());
+            int newQuantity = cartDetail.getQuantity() + item.getQuantity();
+            newQuantity = Math.min(newQuantity, 5);
+
+            if (cartDetail.getId() == null) {
+                cartDetail.setCart(cart);
+                cartDetail.setProduct(product);
+            }
+            cartDetail.setQuantity(newQuantity);
+            updatedCartDetails.add(cartDetail);
+        });
+        cartDetailRepository.saveAll(updatedCartDetails);
+        return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
+    }
+
+    //todo có thể thêm orderId vào cartDetail để xóa cartDetail đó khi thanh toán
     private Cart getCartByUser() {
         Customer customer = entityService.getCustomerByAuth();
         if (customer == null) {

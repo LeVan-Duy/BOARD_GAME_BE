@@ -19,4 +19,6 @@ public interface ClientCartService {
     Response<Object> removeProductInCart(String id);
 
     Response<Object> removeProductsInCart(BaseListIdRequest request);
+
+    Response<Object> mergeClientToServer(List<ClientAddProductToCartRequest> requests);
 }
