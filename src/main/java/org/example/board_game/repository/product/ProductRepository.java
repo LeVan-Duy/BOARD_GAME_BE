@@ -68,7 +68,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             SELECT x FROM Product x
             WHERE x.status = 0 AND x.deleted = FALSE AND x.id IN :productIds
             """)
-    List<Product> findAllSellerProduct(List<String> productIds);
+    List<Product> findAllByIds(List<String> productIds);
 
     @Query(value = """
             SELECT * FROM product
