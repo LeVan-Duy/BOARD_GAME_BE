@@ -15,6 +15,7 @@ public final class MessageConstant {
     public static final String PUBLISHER_NOT_FOUND = "Nhà phát hành không tìm thấy.";
     public static final String VOUCHER_NOT_FOUND = "Giảm giá không tìm thấy.";
     public static final String ADDRESS_NOT_FOUND = "Đỉa chỉ không tìm thấy.";
+    public static final String ORDER_NOT_FOUND = "Đơn hàng không tìm thấy.";
     public static final String UNAUTHORIZED = "UNAUTHORIZED";
     public static final String LOGIN_FAIL = "Thông tin tài khoản hoặc mật khẩu không chính xác.";
 }

@@ -7,8 +7,14 @@ import org.example.board_game.infrastructure.enums.OrderType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
 
     Integer countAllByStatusAndTypeAndDeletedFalse(OrderStatus status, OrderType type);
+
+    Optional<Order> findByCodeAndDeletedFalse(String code);
+
+    Optional<Order> findByIdAndCustomer_Id(String id, String customerId);
 }

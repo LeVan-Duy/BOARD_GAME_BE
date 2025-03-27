@@ -17,7 +17,7 @@ import org.hibernate.annotations.Nationalized;
 public class Payment extends PrimaryEntity {
 
     @JoinColumn(name = "shop_order_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     Order order;
 
     @Column(name = "payment_method")

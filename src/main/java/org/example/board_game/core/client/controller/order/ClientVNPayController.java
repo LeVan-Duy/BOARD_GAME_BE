@@ -21,7 +21,7 @@ public class ClientVNPayController {
     VNPayService vnPayService;
 
     @PostMapping("/checkout")
-    public Response<ClientUrlResponse> submitOrder(@RequestParam("amount") int orderTotal,
+    public Response<ClientUrlResponse> submitOrder(@RequestParam("amount") float orderTotal,
                                                    @RequestParam("orderInfo") String orderInfo) {
         return vnPayService.createOrder(orderTotal, orderInfo);
     }
