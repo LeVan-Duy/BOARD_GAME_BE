@@ -9,6 +9,7 @@ import org.example.board_game.entity.base.PrimaryEntity;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
+import org.example.board_game.entity.payment.Payment;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.enums.OrderStatus;
@@ -80,6 +81,9 @@ public class Order extends PrimaryEntity {
 
     @Column(name = "status")
     OrderStatus status;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    Payment payment;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     List<OrderDetail> orderDetails;

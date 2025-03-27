@@ -6,7 +6,7 @@ import org.example.board_game.utils.Response;
 
 public interface VNPayService {
 
-    Response<ClientUrlResponse> createOrder(int total, String orderId);
+    Response<ClientUrlResponse> createOrder(Float total, String orderId);
 
     Response<ClientUrlResponse> authenticateVnPay(HttpServletRequest request);
 

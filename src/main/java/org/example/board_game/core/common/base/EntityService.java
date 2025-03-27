@@ -152,7 +152,7 @@ public class EntityService {
     public Order getOrder(String id) {
         return orderRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tìm thấy."));
+                .orElseThrow(() -> new ResourceNotFoundException(MessageConstant.ORDER_NOT_FOUND));
     }
 
     public Float totalMoneyOrderDetail(List<OrderDetail> list) {
@@ -160,6 +160,16 @@ public class EntityService {
                 (float) list.stream()
                         .mapToDouble(od -> od.getPrice() * od.getQuantity())
                         .sum();
+    }
+
+    public void revertQuantityProductWhenCancelOrder(Order order) {
+        List<OrderDetail> orderDetails = order.getOrderDetails();
+        List<Product> products = orderDetails.stream().map(orderDetail -> {
+            Product product = orderDetail.getProduct();
+            product.setQuantity(product.getQuantity() + orderDetail.getQuantity());
+            return product;
+        }).toList();
+        productRepository.saveAll(products);
     }
 
     public void createOrderHistory(Order order, OrderStatus status) {

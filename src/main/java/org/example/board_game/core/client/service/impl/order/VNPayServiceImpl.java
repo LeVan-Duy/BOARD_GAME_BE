@@ -43,7 +43,7 @@ public class VNPayServiceImpl implements VNPayService {
     ProductRepository productRepository;
 
     @Override
-    public Response<ClientUrlResponse> createOrder(int total, String orderId) {
+    public Response<ClientUrlResponse> createOrder(Float total, String orderId) {
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -166,8 +166,7 @@ public class VNPayServiceImpl implements VNPayService {
         return Response.of(ClientUrlResponse.builder().url(url).build()).success(message, code);
     }
 
-    @Transactional
-    public void revertForeignKeyConstraint(Order order) {
+    private void revertForeignKeyConstraint(Order order) {
 
         List<Product> products = new ArrayList<>();
         for (OrderDetail orderDetail : order.getOrderDetails()) {
