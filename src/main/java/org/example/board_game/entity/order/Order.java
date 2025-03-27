@@ -46,7 +46,7 @@ public class Order extends PrimaryEntity {
     @Column(name = "full_name", length = EntityProperties.LENGTH_NAME)
     String fullName;
 
-    @Column(name = "email", length = EntityProperties.LENGTH_EMAIL, unique = true)
+    @Column(name = "email", length = EntityProperties.LENGTH_EMAIL)
     String email;
 
     @Column(name = "origin_money")
