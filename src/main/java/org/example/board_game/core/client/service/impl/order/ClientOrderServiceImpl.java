@@ -18,6 +18,7 @@ import org.example.board_game.core.client.domain.mapper.product.ClientProductMap
 import org.example.board_game.core.client.domain.mapper.voucher.ClientVoucherMapper;
 import org.example.board_game.core.client.service.order.ClientOrderService;
 import org.example.board_game.core.client.service.order.VNPayService;
+import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
@@ -288,6 +289,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                 throw new ApiException("Đơn hàng của bạn không đủ điều kiện để áp dụng voucher này.");
             }
             if (action.equals("add")) {
+                // todo check voucher hết hạn
                 if (voucher.getQuantity() < 1) {
                     throw new ApiException("Voucher này hiện tại đã hết.");
                 }
@@ -298,6 +300,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                         if (voucher.getQuantity() < 1) {
                             throw new ApiException("Voucher này hiện tại đã hết.");
                         }
+                        // todo check voucher hết hạn
                         Voucher voucherOld = order.getVoucher();
                         updateQuantityVoucher(voucherOld, voucherOld.getQuantity() + 1);
                         updateQuantityVoucher(voucher, voucher.getQuantity() - 1);
@@ -345,20 +348,17 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     private void convertOrderToResponse(Order order, ClientOrderResponse response) {
 
-        if (order.getCustomer() != null) {
-            ClientCustomerResponse customer = customerMapper.toResponse(order.getCustomer());
-            response.setCustomer(customer);
-        }
         if (order.getPayment() != null) {
             ClientPaymentResponse payment = orderMapper.toPaymentRes(order.getPayment());
             response.setPayment(payment);
         }
-        if (order.getAddress() != null) {
-            ClientAddressResponse address = addressMapper.toResponse(order.getAddress());
-            response.setAddress(address);
-        }
+//        if (order.getAddress() != null) {
+//            ClientAddressResponse address = addressMapper.toResponse(order.getAddress());
+//            response.setAddress(address);
+//        }
+        // todo mainImg, todo mapper address
         if (order.getVoucher() != null) {
-            ClientVoucherResponse voucher = voucherMapper.toResponse(order.getVoucher());
+            BaseResponse voucher = baseResponse(order.getVoucher().getId(), order.getVoucher().getName());
             response.setVoucher(voucher);
         }
         if (!CollectionUtils.isListEmpty(order.getOrderDetails())) {
@@ -376,6 +376,13 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             List<ClientOrderHistoryResponse> orderHistoryResponses = orderMapper.toOrderHistoriesRes(order.getOrderHistories());
             response.setOrderHistories(orderHistoryResponses);
         }
+    }
+
+    private BaseResponse baseResponse(String id, String name) {
+        BaseResponse response = new BaseResponse();
+        response.setId(id);
+        response.setName(name);
+        return response;
     }
 
 }

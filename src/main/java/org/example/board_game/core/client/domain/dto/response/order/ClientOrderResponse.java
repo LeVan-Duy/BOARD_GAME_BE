@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientAddressResponse;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientCustomerResponse;
 import org.example.board_game.core.client.domain.dto.response.voucher.ClientVoucherResponse;
+import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.enums.OrderType;
 import java.util.List;
@@ -18,9 +19,7 @@ public class ClientOrderResponse {
 
     String id;
 
-    ClientCustomerResponse customer;
-
-    ClientVoucherResponse voucher;
+    BaseResponse voucher;
 
     ClientAddressResponse address;
 
