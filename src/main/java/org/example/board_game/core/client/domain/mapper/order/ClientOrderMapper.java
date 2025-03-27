@@ -24,6 +24,7 @@ public interface ClientOrderMapper {
 
     ClientOrderMapper INSTANCE = Mappers.getMapper(ClientOrderMapper.class);
 
+    @Mapping(target = "address", ignore = true)
     Order toEntity(ClientOrderRequest request);
 
     ClientOrderResponse toResponse(Order order);

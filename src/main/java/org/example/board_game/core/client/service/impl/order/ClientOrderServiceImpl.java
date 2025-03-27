@@ -73,14 +73,15 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             throw new ResourceNotFoundException("Vui lòng chọn sản phẩm để thanh toán.");
         }
         Order order = orderMapper.toEntity(request);
-        order.setId(StrUtils.getGuid());
+        order = orderRepository.save(order);
+
         List<String> productIds = CollectionUtils.extractField(cartItems, ClientCartItemRequest::getProductId);
         List<Product> products = productRepository.findAllByIds(productIds);
         Map<String, Product> productMap = CollectionUtils.collectToMap(products, Product::getId);
 
         List<Product> productAfterUpdate = new ArrayList<>();
         List<OrderDetail> orderDetails = new ArrayList<>();
-        float totalPrice = 0f;
+        float totalPrice = 0.0f;
 
         for (ClientCartItemRequest item : cartItems) {
             String productId = item.getProductId();
@@ -106,6 +107,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             orderDetails.add(orderDetail);
         }
         Address address = addressMapper.toEntity(request.getAddress());
+        address = addressRepository.save(address);
         OrderStatus status = request.getPaymentMethod() == PaymentMethod.CASH ? OrderStatus.WAIT_FOR_CONFIRMATION : OrderStatus.PENDING;
 
         order.setType(OrderType.ONLINE);
@@ -114,7 +116,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         order.setOriginMoney(totalPrice);
         applyVoucherToOrder(order, request.getVoucherId(), totalPrice, "add");
         order.setTotalMoney(order.getTotalMoney() + order.getShippingMoney());
-        order.setAddress(addressRepository.save(address));
+        order.setAddress(address);
         order.setExpectedDeliveryDate(new Date().getTime() + EntityProperties.DELIVERY_TIME_IN_MILLIS);
 
         Order orderSaved = orderRepository.save(order);
