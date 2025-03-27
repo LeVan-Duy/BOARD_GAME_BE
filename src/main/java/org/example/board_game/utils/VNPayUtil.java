@@ -13,14 +13,13 @@ public class VNPayUtil {
 
     public static String vnp_ReturnUrl = "http://localhost:8080/api/client/transaction/authenticate";
 
-    public static String vnp_TmnCode = "6ATWTPCI";
+    public static String vnp_TmnCode = "EJWF62VI";
 
-    public static String vnp_HashSecret = "WNXETMCLUIGIDLQBYXZZSTVTPICCPNNO";
+    public static String vnp_HashSecret = "P7WU3OJ1E87DAS491LIAZ82BEO959T7B";
 
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
 
-    //Util for VNPAY
     public static String hashAllFields(Map fields) {
         List fieldNames = new ArrayList(fields.keySet());
         Collections.sort(fieldNames);
@@ -62,17 +61,6 @@ public class VNPayUtil {
         } catch (Exception ex) {
             return "";
         }
-    }
-
-    public static String getQueryUrl(Map<String, String> params, String hashSecret) {
-        List<String> fieldNames = new ArrayList<>(params.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder data = new StringBuilder();
-        for (String fieldName : fieldNames) {
-            data.append(fieldName).append('=').append(params.get(fieldName)).append('&');
-        }
-        String rawData = data.substring(0, data.length() - 1);
-        return rawData + "&vnp_SecureHash=" + hmacSHA512(hashSecret, rawData);
     }
 
     public static String getRandomNumber(int len) {
