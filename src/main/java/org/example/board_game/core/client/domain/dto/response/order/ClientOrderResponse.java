@@ -8,6 +8,7 @@ import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.dto.AddressResponse;
 import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.enums.OrderType;
+
 import java.util.List;
 
 @Getter
@@ -54,4 +55,6 @@ public class ClientOrderResponse {
     String note;
 
     OrderStatus status;
+
+    Long createdAt;
 }
