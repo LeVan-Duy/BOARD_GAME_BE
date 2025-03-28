@@ -367,7 +367,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             response.setAddress(address);
         }
         if (order.getVoucher() != null) {
-            BaseResponse voucher = baseResponse(order.getVoucher().getId(), order.getVoucher().getName());
+            BaseResponse voucher = entityService.baseResponse(order.getVoucher().getId(), order.getVoucher().getName());
             response.setVoucher(voucher);
         }
         if (!CollectionUtils.isListEmpty(order.getOrderDetails())) {
@@ -383,7 +383,7 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                         .findFirst();
 
                 optionalMedia.ifPresent(media -> {
-                    BaseResponse mediaRes = baseResponse(media.getId(), media.getUrl());
+                    BaseResponse mediaRes = entityService.baseResponse(media.getId(), media.getUrl());
                     productRes.setImage(mediaRes);
                 });
                 orderDetailResponse.setProduct(productRes);
@@ -396,13 +396,6 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             List<ClientOrderHistoryResponse> orderHistoryResponses = orderMapper.toOrderHistoriesRes(order.getOrderHistories());
             response.setOrderHistories(orderHistoryResponses);
         }
-    }
-
-    private BaseResponse baseResponse(String id, String name) {
-        BaseResponse response = new BaseResponse();
-        response.setId(id);
-        response.setName(name);
-        return response;
     }
 
 }

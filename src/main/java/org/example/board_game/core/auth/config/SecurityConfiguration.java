@@ -41,24 +41,20 @@ public class SecurityConfiguration {
                                         "/admin/notifications/sse/**", "/client/product/**",
                                         "/admin/notifications", "/client/transaction/**", "/client/order/**")
                                 .permitAll()
-                                .requestMatchers("/admin/customers/**"
-                                        , "/admin/orders/**"
-                                        , "/admin/order-details/**"
+                                .requestMatchers("/admin/customer/**"
+                                        , "/admin/order/**"
                                         , "/admin/notifications/**"
-                                        , "/admin/addresses/**")
+                                        , "/admin/address/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.GET
-                                        , "/admin/order-histories/**", "/admin/voucher-histories/**"
-                                        , "/admin/product-details/**", "/admin/trade-marks/**", "/admin/products/**"
-                                        , "/admin/payments/**", "/admin/payment-methods/**", "/admin/colors/**"
-                                        , "/admin/brands/**", "/admin/styles/**", "/admin/soles/**", "/admin/vouchers/**"
-                                        , "/admin/sizes/**", "/admin/materials/**", "/admin/product/reviews/**"
-                                        , "/admin/promotions/**")
+                                        , "/admin/product/**", "/admin/author/**"
+                                        , "/admin/payment/**", "/admin/publisher/**", "/admin/category/**"
+                                        , "/admin/media/**", "/admin/voucher/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
-//                                .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
-                                .requestMatchers("/auth/client/me").hasAnyRole("CUSTOMER")
-                                .requestMatchers("/auth/admin/me").hasAnyRole("ADMIN", "EMPLOYEE")
+                                .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
+//                                .requestMatchers("/auth/client/customer/**").hasAnyRole("CUSTOMER")
+                                .requestMatchers("/auth/admin-profile").hasAnyRole("ADMIN", "EMPLOYEE")
                                 .anyRequest()
                                 .authenticated())
                 .userDetailsService(userDetailService)
