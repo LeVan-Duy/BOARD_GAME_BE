@@ -52,7 +52,7 @@ public class Customer extends PrimaryEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(Role.CUSTOMER.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + Role.CUSTOMER.name()));
     }
 
     @Override
