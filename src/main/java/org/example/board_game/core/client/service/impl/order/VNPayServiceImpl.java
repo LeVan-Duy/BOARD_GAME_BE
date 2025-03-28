@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.client.domain.dto.response.order.ClientOrderIdResponse;
+import org.example.board_game.core.client.domain.dto.response.order.ClientResultVnPayResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientTransactionInfoResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientUrlResponse;
 import org.example.board_game.core.client.service.order.VNPayService;
@@ -115,7 +117,7 @@ public class VNPayServiceImpl implements VNPayService {
                 .success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);
     }
 
-    private int orderReturn(HttpServletRequest request) {
+    private ClientResultVnPayResponse orderReturn(HttpServletRequest request) {
 
         Map<String, String> fields = new HashMap<>();
 
@@ -133,37 +135,27 @@ public class VNPayServiceImpl implements VNPayService {
         fields.remove("vnp_SecureHashType");
         fields.remove("vnp_SecureHash");
         String signValue = VNPayUtil.hashAllFields(fields);
+        ClientResultVnPayResponse result;
         if (signValue.equals(vnp_SecureHash)) {
-            if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                return 1;
-            } else {
-                return 0;
-            }
+            result = resultVnPay(request.getParameter("vnp_TransactionStatus"));
         } else {
-            return -1;
+            result = new ClientResultVnPayResponse();
+            result.setMessage("GD thất bại.");
+            result.setCode(400);
         }
+        return result;
     }
 
     @Transactional
     @Override
-    public Response<ClientUrlResponse> authenticateVnPay(HttpServletRequest request) {
+    public Response<Object> authenticateVnPay(HttpServletRequest request) {
 
-        int result = orderReturn(request);
+        ClientResultVnPayResponse result = orderReturn(request);
         String orderId = request.getParameter("vnp_OrderInfo");
         String transactionCode = request.getParameter("vnp_TransactionNo");
 
-        ClientTransactionInfoResponse transaction = new ClientTransactionInfoResponse();
-        transaction.setOrderInfo(orderId);
-        transaction.setTransactionCode(transactionCode);
-        transaction.setPaymentTime(request.getParameter("vnp_PayDate"));
-        transaction.setTotalPrice(request.getParameter("vnp_Amount"));
-
         Order order = entityService.getOrder(orderId);
-        String url;
-        String message;
-        int code;
-
-        if (result == 1) {
+        if (result.getCode() == 201) {
             Payment payment = new Payment();
             payment.setOrder(order);
             payment.setMethod(PaymentMethod.TRANSFER);
@@ -176,24 +168,12 @@ public class VNPayServiceImpl implements VNPayService {
             paymentRepository.save(payment);
             orderRepository.save(order);
 
-            url = "Địt mẹ mày thành công quá đã :vvvv";
-            message = "Thanh toán thành công.";
-            code = 201;
-
-        } else if (result == 11 || result == 15) {
-            revertForeignKeyConstraint(order);
-            url = "Địt mẹ mày thất bại rồi :(";
-            message = "Đã hết hạn chờ thanh toán. Xin quý khách vui lòng thực hiện lại giao dịch.";
-            code = 400;
-
-        } else {
-            revertForeignKeyConstraint(order);
-            url = "Địt mẹ mày thất bại rồi :(";
-            message = "Thanh toán thất bại chúng tôi chưa tìm ra lí do.";
-            code = 400;
-
+            ClientOrderIdResponse response = new ClientOrderIdResponse();
+            response.setOrderId(orderId);
+            return Response.of((Object) response).success(result.getMessage(), result.getCode());
         }
-        return Response.of(ClientUrlResponse.builder().url(url).build()).success(message, code);
+        revertForeignKeyConstraint(order);
+        return Response.ok().success(result.getMessage(), result.getCode());
     }
 
     private void revertForeignKeyConstraint(Order order) {
@@ -212,6 +192,50 @@ public class VNPayServiceImpl implements VNPayService {
         order.setDeleted(true);
         productRepository.saveAll(products);
         orderRepository.save(order);
+    }
+
+    private ClientResultVnPayResponse resultVnPay(String code) {
+
+        ClientResultVnPayResponse result = new ClientResultVnPayResponse();
+        switch (code) {
+            case "00" -> {
+                result.setCode(201);
+                result.setMessage("Giao dịch thành công.");
+            }
+            case "01" -> {
+                result.setCode(400);
+                result.setMessage("Giao dịch chưa hoàn tất.");
+            }
+            case "02" -> {
+                result.setCode(400);
+                result.setMessage("Giao dịch bị lỗi.");
+            }
+            case "04" -> {
+                result.setCode(400);
+                result.setMessage("Giao dịch đảo (Khách hàng đã bị trừ tiền tại Ngân hàng nhưng GD chưa thành công ở VNPAY).");
+            }
+            case "05" -> {
+                result.setCode(400);
+                result.setMessage("VNPAY đang xử lý giao dịch này (GD hoàn tiền).");
+            }
+            case "06" -> {
+                result.setCode(400);
+                result.setMessage("VNPAY đã gửi yêu cầu hoàn tiền sang Ngân hàng (GD hoàn tiền).");
+            }
+            case "07" -> {
+                result.setCode(400);
+                result.setMessage("Giao dịch bị nghi ngờ gian lận.");
+            }
+            case "09" -> {
+                result.setCode(400);
+                result.setMessage("GD Hoàn trả bị từ chối.");
+            }
+            default -> {
+                result.setCode(400);
+                result.setMessage("GD thất bại.");
+            }
+        }
+        return result;
     }
 
 }

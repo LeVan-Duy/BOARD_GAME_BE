@@ -8,6 +8,6 @@ public interface VNPayService {
 
     Response<ClientUrlResponse> createOrder(Float total, String orderId);
 
-    Response<ClientUrlResponse> authenticateVnPay(HttpServletRequest request);
+    Response<Object> authenticateVnPay(HttpServletRequest request);
 
 }
