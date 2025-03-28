@@ -180,6 +180,14 @@ public class EntityService {
         orderHistoryRepository.save(orderHistory);
     }
 
+    public void createOrderHistory(Order order, OrderStatus status,String note) {
+        OrderHistory orderHistory = new OrderHistory();
+        orderHistory.setOrder(order);
+        orderHistory.setActionStatus(status);
+        orderHistory.setNote(note);
+        orderHistoryRepository.save(orderHistory);
+    }
+
     public BaseResponse baseResponse(String id, String name) {
         BaseResponse response = new BaseResponse();
         response.setId(id);

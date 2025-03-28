@@ -63,7 +63,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
     VoucherRepository voucherRepository;
     EntityService entityService;
     AdminOrderMapper orderMapper = AdminOrderMapper.INSTANCE;
-    private final PaymentRepository paymentRepository;
+    PaymentRepository paymentRepository;
 
     @Transactional
     @Override
@@ -101,7 +101,7 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         Order order = entityService.getOrder(id);
 
         if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.PENDING) {
-            throw new ApiException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy.");
+            throw new ApiException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy hoặc đang xử lí.");
         }
         OrderStatus status = request.getStatus();
         if (status == null) {
@@ -110,7 +110,14 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         order.setEmployee(employee);
         order.setStatus(status);
         orderRepository.save(order);
-        entityService.createOrderHistory(order, status);
+        if (status == OrderStatus.CANCELED) {
+            if (StrUtils.isBlank(request.getNote())) {
+                throw new ApiException("Vui lòng nhập lí do từ chối.");
+            }
+            entityService.createOrderHistory(order, status, request.getNote());
+        } else {
+            entityService.createOrderHistory(order, status);
+        }
 
         if (status == OrderStatus.CANCELED) {
             entityService.revertQuantityProductWhenCancelOrder(order);
