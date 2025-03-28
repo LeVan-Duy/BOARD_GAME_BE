@@ -2,7 +2,6 @@ package org.example.board_game.repository.order;
 
 import org.example.board_game.core.admin.domain.dto.request.order.AdminOrderRequest;
 import org.example.board_game.entity.order.Order;
-import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.enums.OrderStatus;
 import org.example.board_game.infrastructure.enums.OrderType;
 import org.springframework.data.domain.Page;
@@ -48,4 +47,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> getAllByCustomer_IdAndDeletedFalse(String customerId);
 
     List<Order> getAllByCustomer_IdInAndDeletedFalse(List<String> customerIds);
+
+    List<Order> findAllByStatusAndCreatedAtBeforeAndDeletedFalseAndType(OrderStatus status, Long createdAt, OrderType type);
+
 }

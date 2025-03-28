@@ -17,5 +17,6 @@ public class ScheduledController {
     @Scheduled(cron = "0 * * * * ?") // chạy 1 phút 1 lần...
     public void updateDiscountStatusDaily() {
         scheduledService.updateVoucherStatusAutomatically();
+        scheduledService.removeOrderPendingAndOnline();
     }
 }
