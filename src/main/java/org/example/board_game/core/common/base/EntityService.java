@@ -25,12 +25,12 @@ import org.example.board_game.repository.order.OrderHistoryRepository;
 import org.example.board_game.repository.order.OrderRepository;
 import org.example.board_game.repository.product.*;
 import org.example.board_game.repository.voucher.VoucherRepository;
-import org.example.board_game.utils.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -178,6 +178,13 @@ public class EntityService {
         orderHistory.setActionStatus(status);
         orderHistory.setNote(status.name);
         orderHistoryRepository.save(orderHistory);
+    }
+
+    public BaseResponse baseResponse(String id, String name) {
+        BaseResponse response = new BaseResponse();
+        response.setId(id);
+        response.setName(name);
+        return response;
     }
 
 }

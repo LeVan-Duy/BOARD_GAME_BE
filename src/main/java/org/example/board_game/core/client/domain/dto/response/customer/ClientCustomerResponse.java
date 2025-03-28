@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.client.domain.dto.response.order.ClientOrderResponse;
+import org.example.board_game.entity.order.Order;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
 import org.example.board_game.infrastructure.enums.Gender;
 
@@ -32,6 +34,8 @@ public class ClientCustomerResponse {
     String image;
 
     List<ClientAddressResponse> addressList;
+
+    List<ClientOrderResponse> orders;
 
     public ClientCustomerResponse(Tuple tuple) {
         this.id = tuple.get("id",String.class);

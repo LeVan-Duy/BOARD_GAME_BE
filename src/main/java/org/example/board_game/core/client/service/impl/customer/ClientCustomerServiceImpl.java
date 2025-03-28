@@ -14,13 +14,16 @@ import org.example.board_game.core.client.domain.dto.request.customer.ClientAddr
 import org.example.board_game.core.client.domain.dto.request.customer.ClientCustomerRequest;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientAddressResponse;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientCustomerResponse;
+import org.example.board_game.core.client.domain.dto.response.order.ClientOrderResponse;
 import org.example.board_game.core.client.domain.mapper.customer.ClientAddressMapper;
 import org.example.board_game.core.client.domain.mapper.customer.ClientCustomerMapper;
+import org.example.board_game.core.client.domain.mapper.order.ClientOrderMapper;
 import org.example.board_game.core.client.service.customer.ClientCustomerService;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
+import org.example.board_game.entity.order.Order;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
@@ -28,6 +31,7 @@ import org.example.board_game.infrastructure.exception.UnauthorizedException;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
+import org.example.board_game.repository.order.OrderRepository;
 import org.example.board_game.utils.CollectionUtils;
 import org.example.board_game.utils.PaginationUtil;
 import org.example.board_game.utils.Response;
@@ -51,8 +55,10 @@ public class ClientCustomerServiceImpl implements ClientCustomerService {
     CustomerRepository customerRepository;
     AddressRepository addressRepository;
     EmployeeRepository employeeRepository;
+    OrderRepository orderRepository;
     ClientCustomerMapper customerMapper = ClientCustomerMapper.INSTANCE;
     ClientAddressMapper addressMapper = ClientAddressMapper.INSTANCE;
+    ClientOrderMapper orderMapper = ClientOrderMapper.INSTANCE;
 
     @Override
     public Response<ClientCustomerResponse> getProfile() {
@@ -61,10 +67,13 @@ public class ClientCustomerServiceImpl implements ClientCustomerService {
         if (customer == null) {
             throw new UnauthorizedException(MessageConstant.USER_NOT_FOUND);
         }
+        List<Order> ordersByCustomer = orderRepository.getAllByCustomer_IdAndDeletedFalse(customer.getId());
         List<Address> addresses = addressRepository.getAllByCustomer_IdAndDeletedFalse(customer.getId());
         List<ClientAddressResponse> addressResponses = addressMapper.toResponseList(addresses);
+        List<ClientOrderResponse> orderResponses = orderMapper.toResponseList(ordersByCustomer);
         ClientCustomerResponse response = customerMapper.toResponse(customer);
         response.setAddressList(addressResponses);
+        response.setOrders(orderResponses);
         return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
 

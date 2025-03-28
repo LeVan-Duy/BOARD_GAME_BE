@@ -34,6 +34,8 @@ public interface ClientOrderMapper {
     @Mapping(target = "orderHistories", ignore = true)
     ClientOrderResponse toResponse(Order order);
 
+    List<ClientOrderResponse> toResponseList(List<Order> orders);
+
     ClientPaymentResponse toPaymentRes(Payment payment);
 
     List<ClientOrderHistoryResponse> toOrderHistoriesRes(List<OrderHistory> histories);

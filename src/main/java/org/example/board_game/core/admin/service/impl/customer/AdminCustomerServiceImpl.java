@@ -8,19 +8,24 @@ import org.example.board_game.core.admin.domain.dto.request.customer.AdminAddres
 import org.example.board_game.core.admin.domain.dto.request.customer.AdminCustomerRequest;
 import org.example.board_game.core.admin.domain.dto.response.customer.AdminAddressResponse;
 import org.example.board_game.core.admin.domain.dto.response.customer.AdminCustomerResponse;
+import org.example.board_game.core.admin.domain.dto.response.order.AdminOrderResponse;
 import org.example.board_game.core.admin.domain.mapper.customer.AdminAddressMapper;
 import org.example.board_game.core.admin.domain.mapper.customer.AdminCustomerMapper;
+import org.example.board_game.core.admin.domain.mapper.order.AdminOrderMapper;
 import org.example.board_game.core.admin.service.customer.AdminCustomerService;
+import org.example.board_game.core.client.domain.dto.response.order.ClientOrderResponse;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
+import org.example.board_game.entity.order.Order;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.constants.MessageConstant;
 import org.example.board_game.infrastructure.exception.ApiException;
 import org.example.board_game.repository.customer.AddressRepository;
 import org.example.board_game.repository.customer.CustomerRepository;
 import org.example.board_game.repository.employee.EmployeeRepository;
+import org.example.board_game.repository.order.OrderRepository;
 import org.example.board_game.utils.CollectionUtils;
 import org.example.board_game.utils.PaginationUtil;
 import org.example.board_game.utils.Response;
@@ -43,8 +48,10 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
     CustomerRepository customerRepository;
     EmployeeRepository employeeRepository;
     AddressRepository addressRepository;
+    OrderRepository orderRepository;
     AdminCustomerMapper customerMapper = AdminCustomerMapper.INSTANCE;
     AdminAddressMapper addressMapper = AdminAddressMapper.INSTANCE;
+    AdminOrderMapper orderMapper = AdminOrderMapper.INSTANCE;
 
     @Override
     public Response<PageableObject<AdminCustomerResponse>> findAll(AdminCustomerRequest request) {
@@ -53,15 +60,21 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
         Page<Tuple> page = customerRepository.findAllCustomer(request, request.getStatus(), pageable);
         List<String> customerIds = CollectionUtils.extractField(page.getContent(), tuple -> tuple.get("id", String.class));
         List<Tuple> addressList = addressRepository.getAllByCustomerIds(customerIds);
+        List<Order> orders = orderRepository.getAllByCustomer_IdInAndDeletedFalse(customerIds);
+
         Map<String, List<Tuple>> groupByCustomerId = CollectionUtils.group(addressList, tuple -> tuple.get("customerId", String.class));
+        Map<String, List<Order>> groupOrderByCustomerId = CollectionUtils.group(orders, order -> order.getCustomer().getId());
 
         List<AdminCustomerResponse> responses = page.getContent().stream().map(tuple -> {
             AdminCustomerResponse response = new AdminCustomerResponse(tuple);
             response.setPassword("");
             String customerId = tuple.get("id", String.class);
             List<Tuple> address = groupByCustomerId.getOrDefault(customerId, Collections.emptyList());
+            List<Order> ordersByCustomer = groupOrderByCustomerId.getOrDefault(customerId, List.of());
+            List<ClientOrderResponse> orderResponses = orderMapper.toResponseList(ordersByCustomer);
             List<AdminAddressResponse> addressResponses = address.stream().map(AdminAddressResponse::new).toList();
             response.setAddressList(addressResponses);
+            response.setOrders(orderResponses);
             return response;
         }).toList();
         Page<AdminCustomerResponse> resPage = new PageImpl<>(responses, pageable, page.getTotalElements());
@@ -101,7 +114,7 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
     @Override
     public Response<Object> update(AdminCustomerRequest request, String id) {
 
-        boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalseAndIdNotLike(request.getEmail(),id);
+        boolean isExistEmailCustomer = customerRepository.existsByEmailAndDeletedFalseAndIdNotLike(request.getEmail(), id);
         if (isExistEmailCustomer) {
             throw new ApiException(MessageConstant.EMAIL_IS_EXISTS);
         }
