@@ -3,6 +3,7 @@ package org.example.board_game.core.client.domain.mapper.customer;
 import org.example.board_game.core.client.domain.dto.request.customer.ClientAddressRequest;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientAddressResponse;
 import org.example.board_game.core.common.base.BaseMapper;
+import org.example.board_game.core.common.dto.AddressResponse;
 import org.example.board_game.entity.customer.Address;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,4 +18,5 @@ public interface ClientAddressMapper extends BaseMapper<ClientAddressResponse, A
     @Mapping(target = "id", ignore = true)
     void updateAddress(ClientAddressRequest request, @MappingTarget Address address);
 
+    AddressResponse toAddressResponse(Address address);
 }

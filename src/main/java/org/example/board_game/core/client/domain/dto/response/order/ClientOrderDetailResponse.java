@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.client.domain.dto.response.product.ClientProductResponse;
+import org.example.board_game.core.common.dto.ProductResponse;
 
 
 @Getter
@@ -14,7 +15,7 @@ public class ClientOrderDetailResponse {
 
     String id;
 
-    ClientProductResponse product;
+    ProductResponse product;
 
     int quantity;
 

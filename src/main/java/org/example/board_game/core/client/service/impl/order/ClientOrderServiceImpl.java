@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.example.board_game.core.admin.domain.dto.response.product.ImageResponse;
 import org.example.board_game.core.client.domain.dto.request.order.ClientCartItemRequest;
 import org.example.board_game.core.client.domain.dto.request.order.ClientOrderRequest;
 import org.example.board_game.core.client.domain.dto.response.customer.ClientAddressResponse;
@@ -18,13 +19,17 @@ import org.example.board_game.core.client.domain.mapper.product.ClientProductMap
 import org.example.board_game.core.client.domain.mapper.voucher.ClientVoucherMapper;
 import org.example.board_game.core.client.service.order.ClientOrderService;
 import org.example.board_game.core.client.service.order.VNPayService;
+import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.base.EntityService;
+import org.example.board_game.core.common.dto.AddressResponse;
+import org.example.board_game.core.common.dto.ProductResponse;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.order.Order;
 import org.example.board_game.entity.order.OrderDetail;
 import org.example.board_game.entity.payment.Payment;
 import org.example.board_game.entity.product.Product;
+import org.example.board_game.entity.product.ProductMedia;
 import org.example.board_game.entity.voucher.Voucher;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.infrastructure.constants.MessageConstant;
@@ -60,8 +65,6 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     ClientOrderMapper orderMapper = ClientOrderMapper.INSTANCE;
     ClientAddressMapper addressMapper = ClientAddressMapper.INSTANCE;
-    ClientVoucherMapper voucherMapper = ClientVoucherMapper.INSTANCE;
-    ClientCustomerMapper customerMapper = ClientCustomerMapper.INSTANCE;
     ClientProductMapper productMapper = ClientProductMapper.INSTANCE;
 
     @Transactional
@@ -288,16 +291,12 @@ public class ClientOrderServiceImpl implements ClientOrderService {
                 throw new ApiException("Đơn hàng của bạn không đủ điều kiện để áp dụng voucher này.");
             }
             if (action.equals("add")) {
-                if (voucher.getQuantity() < 1) {
-                    throw new ApiException("Voucher này hiện tại đã hết.");
-                }
+                validTimeVoucher(voucher);
                 updateQuantityVoucher(voucher, voucher.getQuantity() - 1);
             } else {
                 if (order.getVoucher() != null) {
                     if (!voucherId.equals(order.getVoucher().getId())) {
-                        if (voucher.getQuantity() < 1) {
-                            throw new ApiException("Voucher này hiện tại đã hết.");
-                        }
+                        validTimeVoucher(voucher);
                         Voucher voucherOld = order.getVoucher();
                         updateQuantityVoucher(voucherOld, voucherOld.getQuantity() + 1);
                         updateQuantityVoucher(voucher, voucher.getQuantity() - 1);
@@ -326,6 +325,20 @@ public class ClientOrderServiceImpl implements ClientOrderService {
         }
     }
 
+    private void validTimeVoucher(Voucher voucher) {
+
+        long currentDate = new Date().getTime();
+        if (currentDate > voucher.getEndDate()) {
+            throw new ApiException("Voucher này đã hết hạn.");
+        }
+        if (currentDate < voucher.getStartDate()) {
+            throw new ApiException("Voucher này chưa diễn ra.");
+        }
+        if (voucher.getQuantity() < 1) {
+            throw new ApiException("Voucher này hiện tại đã hết.");
+        }
+    }
+
 
     private void updateQuantityVoucher(Voucher voucher, int quantity) {
         voucher.setQuantity(quantity);
@@ -345,28 +358,35 @@ public class ClientOrderServiceImpl implements ClientOrderService {
 
     private void convertOrderToResponse(Order order, ClientOrderResponse response) {
 
-        if (order.getCustomer() != null) {
-            ClientCustomerResponse customer = customerMapper.toResponse(order.getCustomer());
-            response.setCustomer(customer);
-        }
         if (order.getPayment() != null) {
             ClientPaymentResponse payment = orderMapper.toPaymentRes(order.getPayment());
             response.setPayment(payment);
         }
         if (order.getAddress() != null) {
-            ClientAddressResponse address = addressMapper.toResponse(order.getAddress());
+            AddressResponse address = addressMapper.toAddressResponse(order.getAddress());
             response.setAddress(address);
         }
         if (order.getVoucher() != null) {
-            ClientVoucherResponse voucher = voucherMapper.toResponse(order.getVoucher());
+            BaseResponse voucher = baseResponse(order.getVoucher().getId(), order.getVoucher().getName());
             response.setVoucher(voucher);
         }
         if (!CollectionUtils.isListEmpty(order.getOrderDetails())) {
             List<ClientOrderDetailResponse> orderDetailsRes = new ArrayList<>();
             order.getOrderDetails().forEach(orderDetail -> {
                 ClientOrderDetailResponse orderDetailResponse = orderMapper.toOrderDetailRes(orderDetail);
-                ClientProductResponse product = productMapper.toResponse(orderDetail.getProduct());
-                orderDetailResponse.setProduct(product);
+                Product product = orderDetail.getProduct();
+                ProductResponse productRes = productMapper.toProductRes(orderDetail.getProduct());
+
+                Optional<ProductMedia> optionalMedia = product.getProductMediaList()
+                        .stream()
+                        .filter(ProductMedia::isMainImg)
+                        .findFirst();
+
+                optionalMedia.ifPresent(media -> {
+                    BaseResponse mediaRes = baseResponse(media.getId(), media.getUrl());
+                    productRes.setImage(mediaRes);
+                });
+                orderDetailResponse.setProduct(productRes);
                 orderDetailsRes.add(orderDetailResponse);
 
             });
@@ -376,6 +396,13 @@ public class ClientOrderServiceImpl implements ClientOrderService {
             List<ClientOrderHistoryResponse> orderHistoryResponses = orderMapper.toOrderHistoriesRes(order.getOrderHistories());
             response.setOrderHistories(orderHistoryResponses);
         }
+    }
+
+    private BaseResponse baseResponse(String id, String name) {
+        BaseResponse response = new BaseResponse();
+        response.setId(id);
+        response.setName(name);
+        return response;
     }
 
 }
