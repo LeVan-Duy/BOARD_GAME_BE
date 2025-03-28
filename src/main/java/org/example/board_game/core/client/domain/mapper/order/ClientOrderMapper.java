@@ -27,7 +27,6 @@ public interface ClientOrderMapper {
     @Mapping(target = "address", ignore = true)
     Order toEntity(ClientOrderRequest request);
 
-    @Mapping(target = "customer", ignore = true)
     @Mapping(target = "voucher", ignore = true)
     @Mapping(target = "address", ignore = true)
     @Mapping(target = "payment", ignore = true)
