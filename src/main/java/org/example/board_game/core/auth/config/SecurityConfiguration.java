@@ -51,6 +51,7 @@ public class SecurityConfiguration {
                                         , "/admin/payment/**", "/admin/publisher/**", "/admin/category/**"
                                         , "/admin/media/**", "/admin/voucher/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
+                                .requestMatchers("/admin/employee/**").hasRole("ADMIN")
                                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                 .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
                                 .requestMatchers("/auth/admin-profile").hasAnyRole("ADMIN", "EMPLOYEE")
