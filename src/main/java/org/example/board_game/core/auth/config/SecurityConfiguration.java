@@ -42,9 +42,13 @@ public class SecurityConfiguration {
                                         "/admin/notifications", "/client/transaction/**", "/client/order/**")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET,
-                                        "/admin/product/**", "/admin/author/**",
-                                        "/admin/payment/**", "/admin/publisher/**",
-                                        "/admin/category/**", "/admin/media/**", "/admin/voucher/**")
+                                        "/admin/author/**", "/admin/publisher/**",
+                                        "/admin/category/**", "/admin/media/**")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET,
+                                        "/admin/product/**",
+                                        "/admin/payment/**",
+                                        "/admin/voucher/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
                                 .requestMatchers(HttpMethod.POST,
                                         "/admin/product/**", "/admin/author/**",
