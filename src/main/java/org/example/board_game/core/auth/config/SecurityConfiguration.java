@@ -41,27 +41,30 @@ public class SecurityConfiguration {
                                         "/admin/notifications/sse/**", "/client/product/**","/client/voucher/**",
                                         "/admin/notifications", "/client/transaction/**", "/client/order/**")
                                 .permitAll()
-                                .requestMatchers("/admin/customer/**"
-                                        , "/admin/order/**"
-                                        , "/admin/notifications/**"
-                                        , "/admin/address/**")
+                                .requestMatchers(HttpMethod.GET,
+                                        "/admin/product/**", "/admin/author/**",
+                                        "/admin/payment/**", "/admin/publisher/**",
+                                        "/admin/category/**", "/admin/media/**", "/admin/voucher/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
-                                .requestMatchers(HttpMethod.GET
-                                        , "/admin/product/**", "/admin/author/**"
-                                        , "/admin/payment/**", "/admin/publisher/**", "/admin/category/**"
-                                        , "/admin/media/**", "/admin/voucher/**")
+                                .requestMatchers(HttpMethod.POST,
+                                        "/admin/product/**", "/admin/author/**",
+                                        "/admin/payment/**", "/admin/publisher/**",
+                                        "/admin/category/**", "/admin/media/**", "/admin/voucher/**")
+                                .hasRole("ADMIN")
+                                .requestMatchers("/admin/customer/**", "/admin/order/**",
+                                        "/admin/notifications/**", "/admin/address/**")
                                 .hasAnyRole("ADMIN", "EMPLOYEE")
                                 .requestMatchers("/admin/employee/**").hasRole("ADMIN")
-                                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/client/**").hasAnyRole("CUSTOMER")
                                 .requestMatchers("/auth/admin-profile").hasAnyRole("ADMIN", "EMPLOYEE")
-                                .anyRequest()
-                                .authenticated())
+                                .anyRequest().authenticated())
                 .userDetailsService(userDetailService)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
