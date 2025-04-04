@@ -16,4 +16,6 @@ public interface ClientProductService {
 
     Response<List<ClientProductResponse>> getNewProducts();
 
+    Response<ClientProductResponse> findById(String id);
+
 }

@@ -20,6 +20,13 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, String
             """)
     List<Tuple> soldCountProduct(List<String> productIds);
 
+    @Query("""
+            SELECT SUM(x.quantity)
+            FROM OrderDetail x
+            WHERE x.order.status = 4 AND x.deleted = FALSE AND x.product.id = :productId
+            """)
+    Long soldCountProductId(String productId);
+
 
     @Query(value = """
     SELECT SUM(od.quantity) as quantity, od.product_id as productId
