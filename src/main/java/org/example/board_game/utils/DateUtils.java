@@ -105,7 +105,7 @@ public final class DateUtils {
                 return parseTime(dateStr);
             }
         } catch (Exception e) {
-            log.error("Parse " + dateStr + " with format normal error!", e);
+            log.error("Parse {} with format normal error!", dateStr, e);
         }
         return null;
     }
