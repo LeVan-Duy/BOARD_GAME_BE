@@ -12,6 +12,7 @@ import org.example.board_game.core.client.domain.mapper.product.ClientProductMap
 import org.example.board_game.core.client.service.product.ClientProductService;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.BaseResponse;
+import org.example.board_game.core.common.base.EntityService;
 import org.example.board_game.entity.product.*;
 import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.repository.order.OrderDetailRepository;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class ClientProductServiceImpl implements ClientProductService {
     ProductRepository productRepository;
     OrderDetailRepository orderDetailRepository;
     ClientProductMapper productMapper = ClientProductMapper.INSTANCE;
+    EntityService entityService;
 
     @Override
     public Response<PageableObject<ClientProductResponse>> getAll(ClientProductRequest request) {
@@ -83,13 +86,43 @@ public class ClientProductServiceImpl implements ClientProductService {
         List<Tuple> soldCountByProducts = orderDetailRepository.soldCountProduct(productIds);
         Map<String, Long> getSoldCountMap = getSoldCountMap(soldCountByProducts);
 
-        List<ClientProductResponse> responseList =newProducts.stream()
+        List<ClientProductResponse> responseList = newProducts.stream()
                 .map(product -> detailProductRes(product, getSoldCountMap))
                 .toList();
 
         return Response
                 .of(responseList)
                 .success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
+    }
+
+    @Override
+    public Response<ClientProductResponse> findById(String id) {
+        Product product = entityService.getProduct(id);
+        Long soldCount = orderDetailRepository.soldCountProductId(id);
+        ClientProductResponse response = productMapper.toResponse(product);
+
+        response.setSoldCount(soldCount);
+
+        response.setPublisher(product.getPublisher() != null
+                ? baseResponse(product.getPublisher().getId(), product.getPublisher().getName(), product.getPublisher().getDescription())
+                : null);
+        response.setAuthor(product.getAuthor() != null
+                ? baseResponse(product.getAuthor().getId(), product.getAuthor().getName(), product.getAuthor().getDescription())
+                : null);
+        response.setCategories(product.getProductCategoryList().stream()
+                .map(pc -> baseResponse(pc.getCategory().getId(), pc.getCategory().getName(), pc.getCategory().getDescription()))
+                .collect(Collectors.toList()));
+        List<ImageResponse> imageResponses = new ArrayList<>();
+        product.getProductMediaList().forEach(productMedia -> {
+            ImageResponse img = new ImageResponse();
+            img.setId(productMedia.getId());
+            img.setUrl(productMedia.getUrl());
+            img.setNewImage(productMedia.isMainImg());
+            imageResponses.add(img);
+        });
+        response.setImages(imageResponses);
+
+        return Response.of(response).success(EntityProperties.SUCCESS, EntityProperties.CODE_GET);
     }
 
 

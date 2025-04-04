@@ -10,6 +10,7 @@ import org.example.board_game.core.client.service.product.ClientProductService;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -35,5 +36,10 @@ public class ClientProductController {
     @GetMapping("/top-new")
     public Response<List<ClientProductResponse>> getTopNew() {
         return productService.getNewProducts();
+    }
+
+    @GetMapping("/detail/{id}")
+    public Response<ClientProductResponse> detail(@PathVariable String id) {
+        return productService.findById(id);
     }
 }
