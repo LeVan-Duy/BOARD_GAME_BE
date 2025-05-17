@@ -33,7 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             AND (:#{#request.priceMax} IS NULL OR :#{#request.priceMax} = 0 OR o.totalMoney <= :#{#request.priceMax})
             AND (:status IS NULL OR o.status = :status) AND (:type IS NULL OR o.type = :type)
             AND (:employeeId IS NULL OR :employeeId ILIKE '' OR o.employee.id = :employeeId OR o.employee IS NULL)
-            AND (o.deleted = FALSE)
+            AND (o.deleted = FALSE) AND (o.status != 0)
             """)
     Page<Order> findAllOrder(@Param("request") AdminOrderRequest request, @Param("status") OrderStatus status,
                              @Param("type") OrderType type, @Param("employeeId") String employeeId, Pageable pageable);
@@ -42,11 +42,18 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
     Optional<Order> findByCodeAndDeletedFalse(String code);
 
+
     Optional<Order> findByIdAndCustomer_Id(String id, String customerId);
 
     List<Order> getAllByCustomer_IdAndDeletedFalse(String customerId);
 
-    List<Order> getAllByCustomer_IdInAndDeletedFalse(List<String> customerIds);
+    @Query("""
+            SELECT o FROM Order o
+            WHERE
+                (o.customer.id IN :customerIds )
+            AND (o.deleted = FALSE) AND (o.status != 0)
+            """)
+    List<Order> getAllByCustomerIdInAndDeletedFalse(List<String> customerIds);
 
     List<Order> findAllByStatusAndCreatedAtBeforeAndDeletedFalseAndType(OrderStatus status, Long createdAt, OrderType type);
 

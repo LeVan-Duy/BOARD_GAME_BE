@@ -60,7 +60,7 @@ public class AdminCustomerServiceImpl implements AdminCustomerService {
         Page<Tuple> page = customerRepository.findAllCustomer(request, request.getStatus(), pageable);
         List<String> customerIds = CollectionUtils.extractField(page.getContent(), tuple -> tuple.get("id", String.class));
         List<Tuple> addressList = addressRepository.getAllByCustomerIds(customerIds);
-        List<Order> orders = orderRepository.getAllByCustomer_IdInAndDeletedFalse(customerIds);
+        List<Order> orders = orderRepository.getAllByCustomerIdInAndDeletedFalse(customerIds);
 
         Map<String, List<Tuple>> groupByCustomerId = CollectionUtils.group(addressList, tuple -> tuple.get("customerId", String.class));
         Map<String, List<Order>> groupOrderByCustomerId = CollectionUtils.group(orders, order -> order.getCustomer().getId());

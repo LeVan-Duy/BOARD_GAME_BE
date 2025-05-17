@@ -21,6 +21,7 @@ import org.example.board_game.core.client.domain.mapper.order.ClientOrderMapper;
 import org.example.board_game.core.client.service.customer.ClientCustomerService;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.EntityService;
+import org.example.board_game.core.common.dto.AddressResponse;
 import org.example.board_game.entity.customer.Address;
 import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.order.Order;
@@ -110,6 +111,7 @@ public class ClientCustomerServiceImpl implements ClientCustomerService {
         }
         boolean hasDefaultAddress = addressRepository.existsIsDefaultByCustomer(customer);
         Address address = addressMapper.toEntity(request);
+        address.setCustomer(customer);
         address.setIsDefault(!hasDefaultAddress);
         addressRepository.save(address);
         return Response.ok().success(EntityProperties.SUCCESS, EntityProperties.CODE_POST);

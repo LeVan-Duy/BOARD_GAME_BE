@@ -5,9 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.board_game.core.client.domain.dto.response.order.ClientOrderIdResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientResultVnPayResponse;
-import org.example.board_game.core.client.domain.dto.response.order.ClientTransactionInfoResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientUrlResponse;
 import org.example.board_game.core.client.service.order.VNPayService;
 import org.example.board_game.core.common.base.EntityService;
@@ -27,6 +25,7 @@ import org.example.board_game.repository.voucher.VoucherRepository;
 import org.example.board_game.utils.Response;
 import org.example.board_game.utils.VNPayUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -46,7 +45,7 @@ public class VNPayServiceImpl implements VNPayService {
     ProductRepository productRepository;
 
     @Override
-    public Response<ClientUrlResponse> createOrder(Float total, String orderId) {
+    public Response<ClientUrlResponse> createOrder(Float total, String orderId, int minute) {
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -77,7 +76,7 @@ public class VNPayServiceImpl implements VNPayService {
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.MINUTE, minute);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -148,7 +147,7 @@ public class VNPayServiceImpl implements VNPayService {
 
     @Transactional
     @Override
-    public Response<Object> authenticateVnPay(HttpServletRequest request) {
+    public RedirectView authenticateVnPay(HttpServletRequest request) {
 
         ClientResultVnPayResponse result = orderReturn(request);
         String orderId = request.getParameter("vnp_OrderInfo");
@@ -164,16 +163,16 @@ public class VNPayServiceImpl implements VNPayService {
             payment.setTransactionCode(transactionCode);
             payment.setStatus(PaymentStatus.COMPLETED);
             order.setStatus(OrderStatus.WAIT_FOR_DELIVERY);
+            order.setConfirmationDate(new Date().getTime());
             entityService.createOrderHistory(order, OrderStatus.WAIT_FOR_DELIVERY);
             paymentRepository.save(payment);
             orderRepository.save(order);
-
-            ClientOrderIdResponse response = new ClientOrderIdResponse();
-            response.setOrderId(orderId);
-            return Response.of((Object) response).success(result.getMessage(), result.getCode());
+            return new RedirectView("http://localhost:3000/payment/success?orderId=" + orderId);
         }
         revertForeignKeyConstraint(order);
-        return Response.ok().success(result.getMessage(), result.getCode());
+
+        return new RedirectView("http://localhost:3000/payment/fail?message=" + result.getMessage());
+
     }
 
     private void revertForeignKeyConstraint(Order order) {

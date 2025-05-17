@@ -13,5 +13,6 @@ public final class ApiProperties {
     public static final String SELECT = "/select";
     public static final String IMPORT_EXCEL = "/import-excel";
     public static final String URL_RESET_PASSWORD_LOCAL = "http://localhost:5173/reset-password?token=";
+    public static final String URL_FE_TRACKING = "http://localhost:3000/order-info/";
 
 }

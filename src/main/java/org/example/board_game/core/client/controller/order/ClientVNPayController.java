@@ -8,6 +8,7 @@ import org.example.board_game.core.client.domain.dto.response.order.ClientUrlRes
 import org.example.board_game.core.client.service.order.VNPayService;
 import org.example.board_game.utils.Response;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequestMapping("/client/transaction")
@@ -20,11 +21,11 @@ public class ClientVNPayController {
     @PostMapping("/checkout")
     public Response<ClientUrlResponse> submitOrder(@RequestParam("amount") float orderTotal,
                                                    @RequestParam("orderInfo") String orderInfo) {
-        return vnPayService.createOrder(orderTotal, orderInfo);
+        return vnPayService.createOrder(orderTotal, orderInfo,15);
     }
 
     @GetMapping("/authenticate")
-    public Response<Object> getApiSuccess(HttpServletRequest request) {
+    public RedirectView getApiSuccess(HttpServletRequest request) {
         return vnPayService.authenticateVnPay(request);
     }
 

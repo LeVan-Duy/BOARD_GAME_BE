@@ -1,14 +1,14 @@
 package org.example.board_game.core.client.domain.dto.response.customer;
 
 import jakarta.persistence.Tuple;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ClientAddressResponse {
 

@@ -13,8 +13,6 @@ import org.example.board_game.core.admin.service.order.AdminOrderService;
 import org.example.board_game.core.client.domain.dto.response.order.ClientOrderDetailResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientOrderHistoryResponse;
 import org.example.board_game.core.client.domain.dto.response.order.ClientPaymentResponse;
-import org.example.board_game.core.client.domain.dto.response.voucher.ClientVoucherResponse;
-import org.example.board_game.core.client.domain.mapper.order.ClientOrderMapper;
 import org.example.board_game.core.common.PageableObject;
 import org.example.board_game.core.common.base.BaseResponse;
 import org.example.board_game.core.common.base.EntityService;
@@ -24,7 +22,6 @@ import org.example.board_game.entity.customer.Customer;
 import org.example.board_game.entity.employee.Employee;
 import org.example.board_game.entity.order.Order;
 import org.example.board_game.entity.order.OrderDetail;
-import org.example.board_game.entity.order.OrderHistory;
 import org.example.board_game.entity.payment.Payment;
 import org.example.board_game.entity.product.Product;
 import org.example.board_game.entity.product.ProductMedia;
@@ -51,7 +48,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -103,6 +99,19 @@ public class AdminOrderServiceImpl implements AdminOrderService {
         if (order.getStatus() == OrderStatus.CANCELED || order.getStatus() == OrderStatus.COMPLETED || order.getStatus() == OrderStatus.PENDING) {
             throw new ApiException("Không thể cập nhật đơn hàng đã hoàn thành hoặc đã hủy hoặc đang xử lí.");
         }
+        if (order.getStatus() == OrderStatus.WAIT_FOR_CONFIRMATION) {
+            order.setConfirmationDate(new Date().getTime());
+            order.setDeliveryStartDate(null);
+        }
+
+        if (order.getStatus() == OrderStatus.DELIVERING) {
+            order.setDeliveryStartDate(new Date().getTime());
+        }
+
+        if (order.getStatus() == OrderStatus.COMPLETED) {
+            order.setReceivedDate(new Date().getTime());
+        }
+
         OrderStatus status = request.getStatus();
         if (status == null) {
             throw new ResourceNotFoundException("Vui lòng chọn trạng thái xác nhận đơn hàng.");

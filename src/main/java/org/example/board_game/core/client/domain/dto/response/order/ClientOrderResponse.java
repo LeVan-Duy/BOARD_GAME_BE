@@ -18,6 +18,8 @@ public class ClientOrderResponse {
 
     String id;
 
+    String code;
+
     BaseResponse voucher;
 
     AddressResponse address;
@@ -55,6 +57,8 @@ public class ClientOrderResponse {
     String note;
 
     OrderStatus status;
+
+    String urlRepayment;
 
     Long createdAt;
 }

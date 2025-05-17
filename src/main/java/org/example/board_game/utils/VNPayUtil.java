@@ -11,7 +11,8 @@ public class VNPayUtil {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
-    public static String vnp_ReturnUrl = "http://localhost:8080/client/transaction/authenticate";
+//    public static String vnp_ReturnUrl = "http://localhost:8080/client/transaction/authenticate";
+    public static String vnp_ReturnUrl = "http://192.168.0.103:8080/client/transaction/authenticate";
 
     public static String vnp_TmnCode = "EJWF62VI";
 

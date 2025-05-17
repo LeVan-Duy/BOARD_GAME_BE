@@ -22,6 +22,8 @@ public class AdminOrderResponse {
 
     String id;
 
+    String code;
+
     AdminCustomerResponse customerRes;
 
     BaseResponse voucher;

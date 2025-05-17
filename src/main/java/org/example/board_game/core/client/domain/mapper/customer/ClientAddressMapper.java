@@ -10,6 +10,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface ClientAddressMapper extends BaseMapper<ClientAddressResponse, Address, ClientAddressRequest> {
 
@@ -19,4 +21,6 @@ public interface ClientAddressMapper extends BaseMapper<ClientAddressResponse, A
     void updateAddress(ClientAddressRequest request, @MappingTarget Address address);
 
     AddressResponse toAddressResponse(Address address);
+
+    List<AddressResponse> toAddressResponses(List<Address> address);
 }

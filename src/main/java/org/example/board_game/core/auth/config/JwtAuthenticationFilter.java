@@ -1,6 +1,5 @@
 package org.example.board_game.core.auth.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.auth.service.JwtService;
 import org.example.board_game.core.common.support.JsonHelper;
-import org.example.board_game.infrastructure.constants.EntityProperties;
 import org.example.board_game.utils.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

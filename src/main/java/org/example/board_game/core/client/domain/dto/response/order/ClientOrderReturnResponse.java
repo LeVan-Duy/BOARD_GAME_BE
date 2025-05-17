@@ -8,7 +8,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ClientOrderIdResponse {
+public class ClientOrderReturnResponse {
 
     String orderId;
+
+    String message;
 }

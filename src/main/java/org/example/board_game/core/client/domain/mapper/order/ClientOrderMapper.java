@@ -30,7 +30,6 @@ public interface ClientOrderMapper {
     @Mapping(target = "voucher", ignore = true)
     @Mapping(target = "address", ignore = true)
     @Mapping(target = "payment", ignore = true)
-    @Mapping(target = "orderDetails", ignore = true)
     @Mapping(target = "orderHistories", ignore = true)
     ClientOrderResponse toResponse(Order order);
 
@@ -42,6 +41,18 @@ public interface ClientOrderMapper {
 
     ClientOrderDetailResponse toOrderDetailRes(OrderDetail orderDetails);
 
+    @Mapping(target = "address", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "voucher", ignore = true)
+    @Mapping(target = "confirmationDate", ignore = true)
+    @Mapping(target = "expectedDeliveryDate", ignore = true)
+    @Mapping(target = "deliveryStartDate", ignore = true)
+    @Mapping(target = "receivedDate", ignore = true)
+    @Mapping(target = "payment", ignore = true)
+    @Mapping(target = "orderDetails", ignore = true)
+    @Mapping(target = "orderHistories", ignore = true)
+    @Mapping(target = "code", ignore = true)
+    @Mapping(target = "type", ignore = true)
     void updateOrder(ClientOrderRequest request, @MappingTarget Order order);
 }

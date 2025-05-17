@@ -1,9 +1,7 @@
 package org.example.board_game.core.admin.domain.dto.response.customer;
 
 import jakarta.persistence.Tuple;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.board_game.core.client.domain.dto.response.order.ClientOrderResponse;
 import org.example.board_game.infrastructure.enums.CustomerStatus;
@@ -13,6 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminCustomerResponse {
 

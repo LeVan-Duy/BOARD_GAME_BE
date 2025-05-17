@@ -31,6 +31,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             AND (:#{#request.fromAge} IS NULL OR x.minAge <= :#{#request.fromAge})
             AND (:#{#request.minQuality} IS NULL OR x.quantity >= :#{#request.minQuality})
             AND (:#{#request.maxQuality} IS NULL OR x.quantity <= :#{#request.maxQuality})
+            AND (:#{#request.price} IS NULL OR x.price <= :#{#request.price})
+            AND (:#{#request.globalRating} IS NULL OR x.globalRating = :#{#request.globalRating})
+            AND (:#{#request.weight} IS NULL OR x.weight = :#{#request.weight})
             AND (:status IS NULL OR x.status = :status)
             AND (
                        :#{#request.categoryId} IS NULL
@@ -54,6 +57,9 @@ public interface ProductRepository extends JpaRepository<Product, String> {
             AND (:#{#request.fromAge} IS NULL OR x.minAge <= :#{#request.fromAge})
             AND (:#{#request.minQuality} IS NULL OR x.quantity >= :#{#request.minQuality})
             AND (:#{#request.maxQuality} IS NULL OR x.quantity <= :#{#request.maxQuality})
+            AND (:#{#request.price} IS NULL OR x.price <= :#{#request.price})
+            AND (:#{#request.globalRating} IS NULL OR x.globalRating = :#{#request.globalRating})
+            AND (:#{#request.weight} IS NULL OR x.weight = :#{#request.weight})
             AND (x.status = 0)
             AND (
                        :#{#request.categoryId} IS NULL
